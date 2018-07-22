@@ -1,0 +1,35 @@
+﻿@model DigitalInspectionNetCore21.ViewModels.WorkOrders.WorkOrderMasterViewModel
+@{
+	Layout = "~/Views/Shared/_Layout.cshtml";
+	ViewBag.Title = "Digital Inspection";
+}
+
+@section Toolbar{
+	<div class="container-flex between">
+		<div class="form-group" style="margin-top:0px; width:100%;">
+			<input style="margin-bottom:0px;"
+				   type="text"
+				   class="form-control"
+				   placeholder="Search"
+				   id="workOrderTable_searchInput" />
+		</div>
+
+		<!-- Work Order Table Partial contains OnClick-->
+		<button type="button"
+				class="btn btn-default no-margin"
+				id="workOrderTable_clearSearch">
+			<i class="material-icons">clear</i>
+		</button>
+
+		@*<button type="button"
+				class="btn btn-default no-margin"
+				onclick="alert('Filtering coming soon!')">
+			<i class="material-icons">filter_list</i>
+		</button>*@
+	</div>
+}
+
+
+<div class="container-fluid">
+	@Html.Partial("_WorkOrderTable", Model)
+</div>

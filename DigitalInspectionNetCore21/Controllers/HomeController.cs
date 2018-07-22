@@ -1,37 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using DigitalInspectionNetCore21.Models;
+using DigitalInspectionNetCore21.ViewModels.Base;
 
 namespace DigitalInspectionNetCore21.Controllers
 {
-    public class HomeController : Controller
+	// [AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
+	public class HomeController : Controller
     {
         public IActionResult Index()
         {
-            return View();
+            return View(new BaseHomeViewModel());
         }
 
         public IActionResult About()
         {
-            ViewData["Message"] = "Your application description page.";
+	        ViewData["Message"] = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
 
-            return View();
-        }
-
-        public IActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
-
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
+			return View(new BaseAboutViewModel());
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

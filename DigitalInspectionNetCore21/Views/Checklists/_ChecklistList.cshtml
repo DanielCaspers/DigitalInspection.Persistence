@@ -1,0 +1,48 @@
+﻿@model DigitalInspectionNetCore21.ViewModels.Checklists.ManageChecklistMasterViewModel
+
+<div class="list-group" id="checklistList">
+	@foreach (var checklist in Model.Checklists)
+	{
+		//Checklist submission is linked by a form with ID named after resource entity. It is triggered by jQuery on delete confirmation
+		//using (Ajax.BeginForm(
+		//				"Delete",
+		//				"Checklists",
+		//				new { id = checklist.Id },
+		//				new AjaxOptions
+		//				{
+		//					InsertionMode = InsertionMode.Replace,
+		//					UpdateTargetId = "checklistList"
+		//				},
+		//				new { id = checklist.Id }
+		//			)
+		//	)
+		//{
+			<div class="list-group-item">
+				<div class="row-picture">
+					@*FIXME DJC THIS IS DIFFERENT NOW*@
+					@*@if (checklist.Image != null)
+					{
+						<img class="img-rounded" src="@Path.Combine(HostingEnvironment.ApplicationVirtualPath, "/Uploads/Checklists/", checklist.Image.Title)" style="height:64px; width:64px;" alt="checklist-image">
+					}*@
+				</div>
+				<div class="row-content">
+					<div class="col-xs-10">
+						<a href="@Url.Action("Edit", "Checklists", new { id = checklist.Id} )"
+						   onclick="FormService.showProgress()">
+							<h4 class="list-group-item-heading">@checklist.Name</h4>
+							<span class="list-group-item-text">Items: @checklist.ChecklistItems.Count</span>
+						</a>
+					</div>
+
+					<div class="col-xs-2">
+						<button type="button" style="float:right; right:-25px;" class="btn btn-default" onclick="DialogService.confirmDelete('@checklist.Id')">
+							<i class="material-icons">delete</i>
+						</button>
+					</div>
+				</div>
+
+			</div>
+			<div class="list-group-separator"></div>
+		//}
+	}
+</div>

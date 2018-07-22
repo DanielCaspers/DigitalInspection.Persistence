@@ -1,0 +1,71 @@
+﻿@model DigitalInspectionNetCore21.ViewModels.Tags.AddTagViewModel
+
+@{
+	const string TEMPLATE_NAMESPACE = "addTagDialog";
+	const string CANCEL = TEMPLATE_NAMESPACE + "_cancel";
+	const string SUCCESS = TEMPLATE_NAMESPACE + "_success";
+}
+
+<div id="@TEMPLATE_NAMESPACE" class="modal fade">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<h4 class="modal-title">Add a tag</h4>
+			</div>
+			@*@using (Ajax.BeginForm(
+				"Create",
+				"Tags",
+				FormMethod.Post,
+				new AjaxOptions
+				{
+					InsertionMode = InsertionMode.Replace,
+					UpdateTargetId = "tagList"
+				},
+				new { id = "addTagForm", autocomplete = "off" })
+			)
+			{*@
+				<div class="modal-body">
+					<div class="form-group">
+						@Html.LabelFor(m => m.Name, new { @class = "control-label" })
+						@Html.TextBoxFor(m => m.Name, new { @class = "form-control", autofocus = "" })
+						@Html.ValidationMessageFor(m => m.Name)
+					</div>
+
+					<div class="form-group">
+						<div class="container-flex between">
+							<div class="flex-item">
+								@Html.LabelFor(m => m.IsVisibleToCustomer, new { @class = "control-label" })
+							</div>
+							<div class="checkbox ma-checkbox-inline-label">
+								<label>
+									@Html.CheckBoxFor(m => m.IsVisibleToCustomer)
+								</label>
+							</div>
+							@Html.ValidationMessageFor(m => m.IsVisibleToCustomer)
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="container-flex between">
+							<div class="flex-item">
+								@Html.LabelFor(m => m.IsVisibleToEmployee, new { @class = "control-label" })
+							</div>
+							<div class="checkbox ma-checkbox-inline-label">
+								<label>
+									@Html.CheckBoxFor(m => m.IsVisibleToEmployee)
+								</label>
+							</div>
+							@Html.ValidationMessageFor(m => m.IsVisibleToEmployee)
+						</div>
+					</div>
+				</div>
+
+				<div class="modal-footer">
+					<button id="@CANCEL" type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+					<button id="@SUCCESS" type="submit" class="btn btn-primary" data-dismiss="modal">Add</button>
+				</div>
+			@*}*@
+		</div>
+	</div>
+</div>

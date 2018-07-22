@@ -1,0 +1,58 @@
+﻿@model DigitalInspectionNetCore21.ViewModels.ToastViewModel
+
+@{
+	var styleClass = "";
+
+	switch (Model.Type)
+	{
+		case DigitalInspectionNetCore21.ViewModels.ToastType.Error:
+			styleClass = "alert-danger";
+			break;
+		case DigitalInspectionNetCore21.ViewModels.ToastType.Warn:
+			styleClass = "alert-warning";
+			break;
+		case DigitalInspectionNetCore21.ViewModels.ToastType.Success:
+			styleClass = "alert-success";
+			break;
+		case DigitalInspectionNetCore21.ViewModels.ToastType.Info:
+			styleClass = "alert-info";
+			break;
+	}
+}
+
+<div class="ma-toast alert alert-dismissible @styleClass">
+	<i class="material-icons">@Model.Icon</i>
+	<span>@Model.Message</span>
+
+	@switch (Model.Action)
+	{
+		case DigitalInspectionNetCore21.ViewModels.ToastActionType.Close:
+			<button type="button" class="btn btn-default" data-dismiss="alert">
+				<i class="material-icons md-light">close</i>
+			</button>
+			break;
+		case DigitalInspectionNetCore21.ViewModels.ToastActionType.NavigateBack:
+			<button type="button" class="btn btn-default"  onclick="window.history.back()">
+				<i class="material-icons md-light">arrow_back</i>
+			</button>
+			break;
+		case DigitalInspectionNetCore21.ViewModels.ToastActionType.NavigateBackAjax:
+			<button type="button" class="btn btn-default" onclick="window.location.reload()">
+				<i class="material-icons md-light">arrow_back</i>
+			</button>
+			break;
+		case DigitalInspectionNetCore21.ViewModels.ToastActionType.Refresh:
+			<button type="button" class="btn btn-default" onclick="window.location.reload()">
+				<i class="material-icons md-light">refresh</i>
+			</button>
+			break;
+		case DigitalInspectionNetCore21.ViewModels.ToastActionType.Unlock:
+			<button type="button" class="btn btn-default" data-dismiss="alert">
+				<i class="material-icons md-light">lock_open</i>
+			</button>
+			break;
+		default:
+			<span>ENUM PROPERTY NOT YET IMPLEMENTED</span>
+			break;
+	}
+</div>

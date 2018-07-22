@@ -1,0 +1,129 @@
+﻿@model DigitalInspectionNetCore21.ViewModels.Inspections.ViewInspectionPhotosViewModel
+
+@{
+	const string TEMPLATE_NAMESPACE = "viewInspectionPhotosDialog";
+	const string CANCEL = TEMPLATE_NAMESPACE + "_cancel";
+	const string DELETE = TEMPLATE_NAMESPACE + "_success";
+}
+
+@if (Model.ChecklistItem != null)
+{
+	using (Html.BeginForm(
+		 "DeletePhoto",
+		 "Inspections",
+		 new
+		 {
+			 // Image ID Is dynamically inserted on submit
+			 checklistId = Model.ChecklistId,
+			 tagId = Model.TagId,
+			 workOrderId = Model.WorkOrderId
+		 },
+		 FormMethod.Post,
+		false,
+		 new
+		 {
+			 id = "viewInspectionPhotosForm",
+		 })
+		 )
+	 {
+	 }
+
+	<div id="@TEMPLATE_NAMESPACE" class="modal fade">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+					<h4 class="modal-title">View photos - @Model.ChecklistItem.Name</h4>
+				</div>
+				<div class="modal-body">
+					<div id="inspectionPhotosCarousel" class="carousel" data-ride="carousel" data-interval="false">
+						<!-- Indicators -->
+						<ol class="carousel-indicators">
+							@for(var i = 0; i < Model.Images.Count; i++)
+							{
+								<li data-target="#inspectionPhotosCarousel" data-slide-to="@i" class="@(i == 0 ? "active" : "")"></li>
+							}
+						</ol>
+
+						<!-- Wrapper for slides -->
+						<div class="carousel-inner container-flex center">
+							@foreach (var image in Model.Images)
+							{
+								<div class="item @(image.Id == Model.Images[0].Id ? "active" : "")">
+									<img src="@image.Title" data-image-id="@image.Id" style="max-height: 55vh;"/>
+								</div>
+							}
+						</div>
+
+						<!-- Left and right controls -->
+						<a class="left carousel-control visible" href="#inspectionPhotosCarousel" data-slide="prev">
+							<span class="glyphicon glyphicon-chevron-left"></span>
+							<span class="sr-only">Previous</span>
+						</a>
+						<a class="right carousel-control visible" href="#inspectionPhotosCarousel" data-slide="next">
+							<span class="glyphicon glyphicon-chevron-right"></span>
+							<span class="sr-only">Next</span>
+						</a>
+					</div>
+				</div>
+
+				<div class="modal-footer container-flex between">
+					<button id="@DELETE"
+					        type="button"
+					        class="btn btn-warning"
+					        data-dismiss="modal"
+					        onclick="ViewInspectionPhotosDialog.deletePhoto()">
+						Delete
+					</button>
+					
+					<div id="checkbox-carousel" class="container-flex between">
+						Visible to customer?
+						<div class="togglebutton ma-checkbox-inline-label">
+							<label>
+								@for (var i = 0; i < Model.Images.Count; i++)
+								{
+									//using (Ajax.BeginForm(
+									//	 "IsPhotoVisibleToCustomer",
+									//	 "Inspections",
+									//	 new
+									//	 {
+									//		 inspectionItemId = Model.Images[i].InspectionItem.Id,
+									//		 inspectionImageId = Model.Images[i].Id
+									//		 // isVisibleToCustomer is dynamically tacked on via JS
+									//	 },
+									//	 new AjaxOptions
+									//	 {
+									//		 InsertionMode = InsertionMode.Replace,
+									//		 UpdateTargetId = "inspectionTableErrorContainer"
+									//	 },
+									//	 new
+									//	 {
+									//		 // Used for preventing 'Confirm unsaved changes' dialog
+									//		 ma_dirtyforms_ignore = "",
+									//		 style = "display:inline !important"
+									//	 }))
+									// {
+										 @Html.CheckBoxFor(m => m.Images[i].IsVisibleToCustomer, new
+										 {
+											 style = "opacity: 1; width: 20px; height: 20px; margin-right: 10px;",
+											 data_image_id = Model.Images[i].Id,
+											 onchange="ViewInspectionPhotosDialog.onImageVisibilityToggle(this)",
+										 })
+									//}
+								}
+							</label>
+						</div>
+					</div>
+
+					<button id="@CANCEL"
+					        type="button"
+					        class="btn btn-default"
+					        data-dismiss="modal">
+						Dismiss
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+

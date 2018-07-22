@@ -1,0 +1,153 @@
+﻿@using DigitalInspectionNetCore21.Models.Orders
+@using DigitalInspectionNetCore21.Views.Helpers
+@model DigitalInspectionNetCore21.ViewModels.Inspections.InspectionDetailViewModel
+
+@{
+	Layout = "~/Views/Shared/_Layout.cshtml";
+	ViewBag.Title = "Digital Inspection";
+}
+
+@section Toolbar{
+	<div class="container-flex between ma-nav-info">
+		<a href="@Url.Action("_Inspection", "WorkOrders", new {id = Model.WorkOrder.Id})"
+		   class="btn btn-default back-button no-margin no-padding-horizontal">
+			<div>
+				<i class="material-icons">arrow_back</i>
+				@Model.WorkOrder.Id.Substring(3)
+			</div>
+			<div>
+				@Model.Checklist.Name
+			</div>
+		</a>
+
+		<div>
+			@Html.Partial("_CustomerVehicleSummary", Model.WorkOrder)
+		</div>
+
+		<div>
+			@if (Model.WorkOrder.Vehicle.VIN != null)
+			{
+				@*@Ajax.RawActionLink("<i class='material-icons'>history</i>",
+					"GetVehicleHistoryDialog",
+					"VehicleHistory",
+					new
+					{
+						Model.WorkOrder.Vehicle.VIN,
+					},
+					new AjaxOptions
+					{
+						HttpMethod = "POST",
+						InsertionMode = InsertionMode.Replace,
+						UpdateTargetId = "VehicleHistoryDynamicDialogContainer",
+						OnComplete = "DialogService.show('vehicleHistoryDialog', 'vehicleHistoryDialogForm')"
+					},
+					new
+					{
+						@class = "btn btn-primary no-margin no-padding-horizontal"
+					})*@
+			}
+			else
+			{
+				<button type="button"
+				        class="btn btn-primary no-margin no-padding-horizontal"
+				        disabled="disabled">
+					<i class='material-icons'>history</i>
+				</button>
+			}
+
+			@if (Model.WorkOrder.RecommendedServices != null)
+			{
+				<button type="button"
+				        class="btn btn-primary bold no-margin no-padding-horizontal"
+				        onclick="DialogService.show('editRecommendedServicesDialog', 'editRecommendedServices')">
+					<span>RS</span>
+				</button>
+			}
+			else
+			{
+				<button type="button"
+				        disabled="disabled"
+				        class="btn btn-primary bold no-margin no-padding-horizontal"
+				        onclick="DialogService.show('editRecommendedServicesDialog', 'editRecommendedServices')">
+					<span>RS</span>
+				</button>
+			}
+
+			@{
+				var materialIcon = string.IsNullOrWhiteSpace(Model.WorkOrder.Notes) ? "chat_bubble_outline" : "chat";
+				var iconHtml = string.Format("<i class='material-icons'>{0}</i>", materialIcon);
+				@*@Ajax.RawActionLink(iconHtml,
+					"GetAddInspectionWorkOrderNoteDialog",
+					"Inspections",
+					new
+					{
+						workOrderId = Model.WorkOrder.Id,
+					},
+					new AjaxOptions
+					{
+						HttpMethod = "POST",
+						InsertionMode = InsertionMode.Replace,
+						UpdateTargetId = "AddInspectionWorkOrderNoteDynamicDialogContainer",
+						OnComplete = "DialogService.show('addInspectionWorkOrderNoteDialog', 'addInspectionWorkOrderNoteForm')"
+					},
+					new
+					{
+						@class = "btn btn-primary no-margin no-padding-horizontal"
+					});*@
+			}
+			
+			@if (Model.WorkOrder.Status != null &&
+			     Model.WorkOrder.Status.Code >= (int) WorkOrderStatusCode.InspectionCanBeMarkedForCompletion &&
+			     Model.WorkOrder.Status.Code < (int) WorkOrderStatusCode.InspectionCompleted)
+			{
+				using (Html.BeginForm(
+					"MarkAsCompleted",
+					"Inspections",
+					new
+					{
+						inspectionId = Model.Inspection.Id,
+						workOrderId = Model.WorkOrder.Id,
+						checklistId = Model.Checklist.Id,
+						tagId = Model.FilteringTagId
+
+					},
+					FormMethod.Post,
+					false,
+					new { id = "markInspectionAsCompletedForm", @class="ma-inline-form" }))
+				{
+				}
+
+				<button type="button"
+				        class="btn btn-primary no-margin no-padding-horizontal"
+				        onclick="DialogService.confirm('markInspectionAsCompletedForm')"
+				        style="color: limegreen">
+					<i class='material-icons'>done_all</i>
+				</button>
+			}
+			else
+			{
+				<button type="button"
+				        class="btn btn-primary no-margin no-padding-horizontal"
+				        disabled="disabled">
+					<i class='material-icons'>done_all</i>
+				</button>
+			}
+
+		</div>
+	</div>
+}
+
+@if (Model.WorkOrder != null && Model.WorkOrder.RecommendedServices != null)
+{
+	@Html.Partial("../Shared/Dialogs/_EditRecommendedServicesDialog", Model.WorkOrder)
+}
+
+@Html.Partial("../Shared/Dialogs/_Confirm", Model.ConfirmInspectionCompleteViewModel)
+
+<div id="VehicleHistoryDynamicDialogContainer">
+	@Html.Partial("../Shared/Dialogs/_VehicleHistoryDialog", Model.VehicleHistoryVM)
+</div>
+
+<div class="container-fluid">
+	@Html.Partial("_InspectionTable", Model)
+</div>

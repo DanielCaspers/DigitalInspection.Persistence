@@ -1,0 +1,32 @@
+﻿@model DigitalInspectionNetCore21.Models.Orders.WorkOrder
+
+@using DigitalInspectionNetCore21.Views.Helpers;
+
+<span class="container-flex align-center between">
+	@{
+		var iconColor = Model.Customer.WaitingSinceDate.HasValue ? "royalblue" : "#ddd";
+		var iconStyles = string.Format("color: {0}", iconColor);
+		<i class="material-icons md-36" style="@iconStyles" title="Customer Waiting">assignment_ind</i>
+	}
+
+	@HtmlHelpers.Pluralizer(Model.Customer.Name)
+</span>
+<span class="car-color-badge" style="background-color: @Model.Vehicle.Color;">
+	@Model.Vehicle.Year
+	@Model.Vehicle.Make
+	@Model.Vehicle.Model
+</span>
+
+
+@*@if (String.IsNullOrWhiteSpace(Model.Vehicle.Color))
+{
+	<span class="car-color-indicator">?</span>
+}
+else
+{
+	<span class="car-color-indicator" style="background-color: @Model.Vehicle.Color;"></span>
+}*@
+
+<script>
+	CustomerVehicleSummaryComponent.setContrast();
+</script>

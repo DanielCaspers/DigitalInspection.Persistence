@@ -1,0 +1,49 @@
+﻿@model DigitalInspectionNetCore21.ViewModels.Inspections.AddInspectionWorkOrderNoteViewModel
+
+@{
+	const string TEMPLATE_NAMESPACE = "addInspectionWorkOrderNoteDialog";
+	const string CANCEL = TEMPLATE_NAMESPACE + "_cancel";
+	const string SUCCESS = TEMPLATE_NAMESPACE + "_success";
+}
+
+@if (!string.IsNullOrEmpty(Model.WorkOrderId))
+{
+	<div id="@TEMPLATE_NAMESPACE" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+					<h4 class="modal-title">Edit work order note - @Model.WorkOrderId.Substring(3)</h4>
+				</div>
+				@*@using (Ajax.BeginForm(
+					"WorkOrderNote",
+					"Inspections",
+					FormMethod.Post,
+					new AjaxOptions
+					{
+						InsertionMode = InsertionMode.Replace,
+						UpdateTargetId = "addInspectionWorkOrderNoteErrorContainer"
+					},
+					new { id = "addInspectionWorkOrderNoteForm", autocomplete = "off" })
+				)
+				{*@
+					<div class="modal-body">
+						<div class="form-group">
+							@Html.LabelFor(m => m.Note, new { @class = "control-label" })
+							@Html.TextAreaFor(m => m.Note, new { @class = "form-control", autofocus = "", rows = "15", spellcheck = true})
+							@Html.ValidationMessageFor(m => m.Note)
+						</div>
+					</div>
+
+					<div class="modal-footer">
+						<button id="@CANCEL" type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+						<button id="@SUCCESS" type="submit" class="btn btn-primary" data-dismiss="modal">Save</button>
+					</div>
+
+					@Html.HiddenFor(m => m.WorkOrderId)
+				@*}*@
+			</div>
+		</div>
+	</div>
+}
+
