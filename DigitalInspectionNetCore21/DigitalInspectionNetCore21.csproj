@@ -2,11 +2,33 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TypeScriptToolsVersion>2.8</TypeScriptToolsVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.2" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\Components\car-color-indicator.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\Components\checkbox.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\Components\colors.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\Components\components.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\Components\form.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\Components\material-icons.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\Components\multiselect.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\Components\progress-bar.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\Components\recommended-services.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\Components\scrollable-tabs.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\Components\tab-container.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\Components\toast.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\Components\toolbar.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\Library\jquery.scrolling-tabs.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\Views\inspection-table.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\Views\layout.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\Views\work-order-table.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BuildBundlerMinifier" Version="2.8.391" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.1.1" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
     <PackageReference Include="System.Drawing.Common" Version="4.5.0" />

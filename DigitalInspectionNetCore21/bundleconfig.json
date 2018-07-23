@@ -1,0 +1,38 @@
+﻿[
+	{
+		"outputFileName": "wwwroot/css/site.min.css",
+		"inputFiles": [
+			"wwwroot/css/site.css",
+			"wwwroot/css/Library/**/*.css",
+			"wwwroot/css/Components/**/*.min.css",
+			"wwwroot/css/Views/**/*.min.css"
+		]
+	},
+	{
+		"outputFileName": "wwwroot/js/site.min.js",
+		"inputFiles": [
+			"wwwroot/js/site.js",
+
+			"wwwroot/js/Library/JQuery/jquery-3.1.1.js",
+			"wwwroot/js/Library/JQuery-Ajax/jquery.unobtrusive-ajax.js",
+			"wwwroot/js/Library/JQuery-DirtyForms/jquery.dirtyforms.min.js",
+			"wwwroot/js/Library/JQuery-DirtyForms/jquery.dirtyforms.dialogs.bootstrap.js",
+			"wwwroot/js/Library/JQuery-Validate/jquery.validate*",
+			"wwwroot/js/Library/Bootstrap/bootstrap.js",
+			"wwwroot/js/Library/JQuery-Bootstrap-Scrolling-Tabs/jquery.scrolling-tabs.min.js",
+			"wwwroot/js/Library/DataTables/jquery.dataTables.min.js",
+			"wwwroot/js/Library/DataTables/dataTables.select.min.js",
+			"wwwroot/js/Library/Bootstrap-Material/material.js",
+			"wwwroot/js/Library/Bootstrap-Material/ripples.js",
+			"wwwroot/js/Library/Bootstrap-Multiselect/bootstrap-multiselect.js",
+			"wwwroot/js/Library/Bootstrap-Select/bootstrap-select.min.js",
+
+			"wwwroot/js/compiledTS/**/*.js"
+		],
+		"minify": {
+			"enabled": false,
+			"renameLocals": false
+		},
+		"sourceMap": true
+	}
+]

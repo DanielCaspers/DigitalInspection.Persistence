@@ -1,0 +1,39 @@
+﻿i.recommended-service.immediate {
+  color: red; }
+
+i.recommended-service.moderate {
+  color: orange; }
+
+i.recommended-service.watch {
+  color: #888; }
+
+i.recommended-service.maintenance {
+  color: mediumblue; }
+
+i.recommended-service.notes {
+  color: black; }
+
+i.recommended-service.unknown {
+  color: saddlebrown; }
+
+span.recommended-service.label {
+  border-radius: 5px; }
+  span.recommended-service.label.immediate {
+    color: #fff;
+    background-color: red; }
+  span.recommended-service.label.moderate {
+    color: #fff;
+    background-color: orange; }
+  span.recommended-service.label.watch {
+    color: #fff;
+    background-color: #888; }
+  span.recommended-service.label.maintenance {
+    color: #fff;
+    background-color: mediumblue; }
+  span.recommended-service.label.notes {
+    color: #fff;
+    background-color: black; }
+  span.recommended-service.label.unknown {
+    color: #fff;
+    background-color: saddlebrown; }
+

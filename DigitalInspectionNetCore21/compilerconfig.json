@@ -1,0 +1,94 @@
+﻿[
+  {
+    "outputFile": "wwwroot/css/site.css",
+    "inputFile": "wwwroot/css/site.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Components/car-color-indicator.css",
+    "inputFile": "wwwroot/css/Components/car-color-indicator.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Components/card.css",
+    "inputFile": "wwwroot/css/Components/card.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Components/checkbox.css",
+    "inputFile": "wwwroot/css/Components/checkbox.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Components/colors.css",
+    "inputFile": "wwwroot/css/Components/colors.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Components/components.css",
+    "inputFile": "wwwroot/css/Components/components.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Components/dropdown-tray.css",
+    "inputFile": "wwwroot/css/Components/dropdown-tray.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Components/flex.css",
+    "inputFile": "wwwroot/css/Components/flex.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Components/form.css",
+    "inputFile": "wwwroot/css/Components/form.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Components/material-icons.css",
+    "inputFile": "wwwroot/css/Components/material-icons.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Components/multiselect.css",
+    "inputFile": "wwwroot/css/Components/multiselect.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Components/progress-bar.css",
+    "inputFile": "wwwroot/css/Components/progress-bar.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Components/recommended-services.css",
+    "inputFile": "wwwroot/css/Components/recommended-services.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Components/scrollable-tabs.css",
+    "inputFile": "wwwroot/css/Components/scrollable-tabs.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Components/tab-container.css",
+    "inputFile": "wwwroot/css/Components/tab-container.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Components/table.css",
+    "inputFile": "wwwroot/css/Components/table.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Components/toast.css",
+    "inputFile": "wwwroot/css/Components/toast.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Components/toolbar.css",
+    "inputFile": "wwwroot/css/Components/toolbar.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Library/jquery.scrolling-tabs.css",
+    "inputFile": "wwwroot/css/Library/jquery.scrolling-tabs.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Views/inspection-table.css",
+    "inputFile": "wwwroot/css/Views/inspection-table.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Views/layout.css",
+    "inputFile": "wwwroot/css/Views/layout.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Views/views.css",
+    "inputFile": "wwwroot/css/Views/views.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Views/work-order-table.css",
+    "inputFile": "wwwroot/css/Views/work-order-table.scss"
+  }
+]

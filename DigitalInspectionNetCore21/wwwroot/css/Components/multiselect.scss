@@ -1,0 +1,56 @@
+﻿@import "colors.scss";
+
+// BS MultiSelect - Using plugin defined classes http://davidstutz.github.io/bootstrap-multiselect/#styling
+.multiselect-native-select {
+	$multiselect-font-size: 16px;
+
+	.multiselect-container.dropdown-menu {
+
+		li {
+			&:not(.multiselect-filter) {
+				height: 38px;
+			}
+
+			&.active {
+				background-color: #e5e5e5;
+
+				label {
+					background-color: #e5e5e5;
+					color: $material-primary !important;
+					font-size: $multiselect-font-size;
+
+					input[type=checkbox] {
+						opacity: 1;
+						height: 20px;
+						width: 20px;
+						left: 10px;
+						top: 5px;
+						z-index: 1;
+						// Change this to hide/show checkboxes
+						-webkit-appearance: checkbox;
+						-webkit-appearance: none;
+						-moz-appearance: none;
+					}
+				}
+			}
+
+			label {
+				font-size: $multiselect-font-size;
+				color: #555;
+				user-select: none;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+			}
+		}
+
+		button.multiselect-clear-filter i {
+			font-size: 18px;
+		}
+	}
+
+	.multiselect-selected-text {
+		text-transform: none;
+		color: $material-primary;
+		font-size: $multiselect-font-size;
+	}
+}

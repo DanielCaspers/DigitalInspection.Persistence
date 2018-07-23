@@ -1,0 +1,12 @@
+﻿.ma-card {
+	img {
+		// Match panel border radius
+		border-bottom-right-radius: 2px;
+		border-bottom-left-radius: 2px;
+		opacity: 0.7;
+
+		&:hover {
+			opacity: 1.0;
+		}
+	}
+}

@@ -6,11 +6,11 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>@ViewData["Title"] - DigitalInspectionNetCore21</title>
+	<title>@ViewData["Title"]</title>
 
 	<environment include="Development">
 		<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
-		<link rel="stylesheet" href="~/css/site.css" />
+		<link rel="stylesheet" href="~/css/site.min.css" />
 	</environment>
 	<environment exclude="Development">
 		<link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
@@ -20,28 +20,100 @@
 	</environment>
 </head>
 <body>
-	<nav class="navbar navbar-inverse navbar-fixed-top">
-		<div class="container">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-				<a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">DigitalInspectionNetCore21</a>
-			</div>
-			<div class="navbar-collapse collapse">
-				<ul class="nav navbar-nav">
-					<li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-					<li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
-					<li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
-				</ul>
-			</div>
-		</div>
-	</nav>
+	
+	<script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"
+			crossorigin="anonymous"
+			integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT">
+	</script>
+	<script src="~/js/site.min.js"></script>
 
-	<partial name="_CookieConsentPartial" />
+	@if (Model != null && !string.IsNullOrEmpty(Model.ResourceName))
+	{
+		<div class="navbar navbar-inverse navbar-fixed-top">
+			<div class="container-fluid ma-nav-container">
+				<div class="dropdown ma-nav-dropdown">
+					<button type="button" class="btn btn-default" data-toggle="dropdown">
+						<i class="dropdown-toggle material-icons md-24 md-light">
+							menu
+						</i>
+					</button>
+					<ul class="dropdown-menu ma-menu-tray">
+						<li>
+							<a href="@Url.Action("Index", "WorkOrders")"
+							   onclick="FormService.showProgress()">
+								<i class="material-icons">description</i>
+								<span>Work Orders</span>
+							</a>
+						</li>
+						@*@if (HttpContext.Current.User.IsInRole(Roles.Admin))
+							{*@
+						<li>
+							<a href="@Url.Action("Index", "Checklists")"
+							   onclick="FormService.showProgress()">
+								<i class="material-icons">list</i>
+								<span>Checklists</span>
+							</a>
+						</li>
+						@*}*@
+						<li>
+							<a href="@Url.Action("About", "Home")"
+							   onclick="FormService.showProgress()">
+								<i class="material-icons">info</i>
+								<span>About</span>
+							</a>
+						</li>
+					</ul>
+				</div>
+
+				<a href="@Url.Action(Model.ResourceMethodName, Model.ResourceControllerName)"
+				   id="ma-nav-title"
+				   class="ma-nav-breadcrumb ma-nav-text">
+					@Model.ResourceName
+				</a>
+
+				@using (Html.BeginForm(
+					"ChangeCompany",
+					"Company",
+					FormMethod.Post,
+					new
+					{
+						// Used for preventing 'Confirm unsaved changes' dialog
+						ma_dirtyforms_ignore = ""
+					}
+					))
+				{
+					<select id="ma-company-picker"
+							class="show-tick"
+							data-style="ma-nav-brand"
+							name="companyNumber">
+						@*@{
+								var roles = (User.Identity as ClaimsIdentity).Claims
+									.Where(claim => claim.Type == "roles")
+									.Select(r => r.Value.Substring(0, 3))
+									.Distinct();
+
+								HttpCookie companyCookie = Request.Cookies.Get(CookieFactory.CompanyCookieName);
+								string selectedCompany = companyCookie.Value ?? "";
+
+								foreach (var role in roles)
+								{
+									<option title="Murphy Automotive (@role)"
+											value="@role"
+											@(role= =selectedCompany ? "selected" : "" )>
+										@role
+									</option>
+								}
+							}*@
+					</select>
+				}
+
+				<div class="ma-nav-account">
+					@Html.Partial("_LoginPartial")
+				</div>
+			</div>
+
+		</div>
+	}
 
 	<div class="container body-content">
 		<div id="ajaxContentWrapper">
@@ -63,14 +135,12 @@
 				<div class="btn-toolbar ma-toolbar well well-sm" id="toolbarContainer">
 					@RenderSection("Toolbar")
 				</div>
-				//FIXME DJC
-				@*@HtmlHelpers.ProgressBar()*@
+				@HtmlHelpers.ProgressBar()
 			}
 			@if (Model != null && Model.Toast != null)
 			{
 				<div>
-					//FIXME DJC
-					@*@Html.Partial("Toasts/_Toast", Model.Toast)*@
+					@Html.Partial("Toasts/_Toast", Model.Toast)
 				</div>
 			}
 
@@ -78,40 +148,39 @@
 
 			@RenderBody()
 
-			<hr />
+			<hr/>
 			<footer>
 				<span>&copy; 2017-@DateTime.Now.Year - Daniel Caspers. All rights reserved.</span>
 			</footer>
 		</div>
-
-		@RenderBody()
-		<hr />
-		<footer>
-			<p>&copy; 2018 - DigitalInspectionNetCore21</p>
-		</footer>
 	</div>
 
-	<environment include="Development">
-		<script src="~/lib/jquery/dist/jquery.js"></script>
-		<script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
-		<script src="~/js/site.js" asp-append-version="true"></script>
-	</environment>
-	<environment exclude="Development">
-		<script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"
-				asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
-				asp-fallback-test="window.jQuery"
-				crossorigin="anonymous"
-				integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT">
-		</script>
-		<script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/bootstrap.min.js"
-				asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
-				asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
-				crossorigin="anonymous"
-				integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
-		</script>
-		<script src="~/js/site.min.js" asp-append-version="true"></script>
-	</environment>
-
+	@*<environment include="Development">
+			<script src="~/lib/jquery/dist/jquery.js"></script>
+			<script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+			<script src="~/js/site.min.js" asp-append-version="true"></script>
+		</environment>
+		<environment exclude="Development">
+			<script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"
+					asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+					asp-fallback-test="window.jQuery"
+					crossorigin="anonymous"
+					integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT">
+			</script>
+			<script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/bootstrap.min.js"
+					asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
+					asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
+					crossorigin="anonymous"
+					integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
+			</script>
+			<script src="~/js/site.min.js" asp-append-version="true"></script>
+		</environment>*@
 	@RenderSection("Scripts", required: false)
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$.material.init();
+		});
+	</script>
 </body>
 </html>
