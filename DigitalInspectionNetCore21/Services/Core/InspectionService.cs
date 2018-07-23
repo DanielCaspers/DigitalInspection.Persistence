@@ -1,13 +1,11 @@
-﻿//FIXME DJC This is probably done differently here, revisit
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Models.Inspections;
+using DigitalInspectionNetCore21.Models.Inspections.Joins;
 using DigitalInspectionNetCore21.Models.Orders;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace DigitalInspectionNetCore21.Services.Core
@@ -78,11 +76,13 @@ namespace DigitalInspectionNetCore21.Services.Core
 
 			// Clear canned response IDs when switching conditions.
 			// This is because otherwise, the inspection table's select box and the DB (and thus the report) can get out of sync
-			foreach (var cannedResponse in inspectionItem.CannedResponses)
+			foreach (var inspectionItemCannedResponse in inspectionItem.InspectionItemCannedResponses)
 			{
+				var cannedResponse = inspectionItemCannedResponse.CannedResponse;
 				ctx.CannedResponses.Attach(cannedResponse);
 			}
-			inspectionItem.CannedResponses = new List<CannedResponse>();
+			// FIXME DJC EF Many2Many - Determine if this still works. Its possible EF won't see this as clearing with the new many-many join style
+			inspectionItem.InspectionItemCannedResponses = new List<InspectionItemCannedResponse>();
 
 			return TrySave(ctx);
 		}
@@ -92,14 +92,23 @@ namespace DigitalInspectionNetCore21.Services.Core
 			InspectionItem inspectionItem,
 			IList<Guid> selectedCannedResponseIds)
 		{
-			foreach (var cannedResponse in inspectionItem.CannedResponses)
+			foreach (var inspectionItemCannedResponse in inspectionItem.InspectionItemCannedResponses)
 			{
+				var cannedResponse = inspectionItemCannedResponse.CannedResponse;
 				ctx.CannedResponses.Attach(cannedResponse);
 			}
 
-			inspectionItem.CannedResponses =
+			inspectionItem.InspectionItemCannedResponses = 
 				selectedCannedResponseIds
 					.Select(crId => ctx.CannedResponses.Single(cr => cr.Id == crId))
+					// FIXME DJC EF Many2Many - Had to widen from just adjusting canned responses, so this may impact property tracking
+					.Select(cr => new InspectionItemCannedResponse
+					{
+						InsepctionItem = inspectionItem,
+						CannedResponse = cr,
+						InspectionItemId = inspectionItem.Id,
+						CannedResponseId = cr.Id
+					})
 					.ToList();
 
 			return TrySave(ctx);
@@ -195,15 +204,29 @@ namespace DigitalInspectionNetCore21.Services.Core
 				inspection = new Inspection
 				{
 					WorkOrderId = workOrderId,
-					Checklists = new List<Checklist> { checklist }
+					// FXIME DJC EF Many2Many - This relationship no longer works
+					ChecklistInspections = new List<ChecklistInspection> {
+						new ChecklistInspection {
+						Checklist = checklist,
+						ChecklistId = checklist.Id,
+						Inspection = inspection,
+						InspectionId = new Guid()
+					}} 
 				};
 
 				ctx.Inspections.Add(inspection);
 			}
 			// An inspection exists, but this checklist has not yet been performed on it
-			else if (inspection.Checklists.Any(c => c.Id == checklist.Id) == false)
+			// FXIME DJC EF Many2Many - This relationship may no longer work
+			else if (inspection.ChecklistInspections.Any(joinItem => joinItem.Checklist.Id == checklist.Id) == false)
 			{
-				inspection.Checklists.Add(checklist);
+				inspection.ChecklistInspections.Add(new ChecklistInspection
+				{
+					Checklist = checklist,
+					ChecklistId = checklist.Id,
+					Inspection = inspection,
+					InspectionId = inspection.Id
+				});
 			}
 
 			TrySave(ctx);
@@ -219,7 +242,7 @@ namespace DigitalInspectionNetCore21.Services.Core
 			Checklist checklist,
 			Inspection inspection)
 		{
-			foreach (var ci in checklist.ChecklistItems)
+			foreach (var ci in checklist.ChecklistChecklistItems.Select(joinItem => joinItem.ChecklistItem))
 			{
 				var inspectionItem = inspection.InspectionItems.SingleOrDefault(item => item.ChecklistItem.Id == ci.Id);
 				if (inspectionItem == null)
@@ -281,7 +304,7 @@ namespace DigitalInspectionNetCore21.Services.Core
 			{
 				// ExceptionHandlerService.HandleException(dbEx);
 			}
-			// FIXME DJC Appears to be different in ef core https://stackoverflow.com/questions/46430619/net-core-2-ef-core-error-handling-save-changes
+			// FIXME DJC EF Validation - Appears to be different https://stackoverflow.com/questions/46430619/net-core-2-ef-core-error-handling-save-changes
 			//try
 			//{
 			//	ctx.SaveChanges();

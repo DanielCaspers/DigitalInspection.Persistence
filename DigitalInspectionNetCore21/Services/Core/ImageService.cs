@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Drawing;
 using System.IO;
 using Microsoft.AspNetCore.Http;
 using Image = DigitalInspectionNetCore21.Models.Inspections.Image;
 
 namespace DigitalInspectionNetCore21.Services.Core
 {
-	// FIXME DJC This is  done differently here, revisit
 	public static class ImageService
 	{
 		private static readonly string UPLOAD_DIR = "~/Uploads/";

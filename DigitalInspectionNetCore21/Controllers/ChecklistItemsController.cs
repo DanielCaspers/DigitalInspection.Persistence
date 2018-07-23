@@ -5,6 +5,7 @@ using DigitalInspectionNetCore21.Services;
 using System.Collections.Generic;
 using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Models.Inspections;
+using DigitalInspectionNetCore21.Models.Inspections.Joins;
 using DigitalInspectionNetCore21.ViewModels.ChecklistItems;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,12 +23,11 @@ namespace DigitalInspectionNetCore21.Controllers
 		{
 			var checklistItems = _context.ChecklistItems.OrderBy(c => c.Name).ToList();
 			var tags = _context.Tags.OrderBy(t => t.Name).ToList();
-			// TODO: Why is this necessary?
-			var measurements = new List<Measurement>();
+
 			return new ManageChecklistItemsViewModel
 			{
 				ChecklistItems = checklistItems,
-				AddChecklistItemVM = new AddChecklistItemViewModel { Name = "", Tags = tags, Measurements = measurements }
+				AddChecklistItemVM = new AddChecklistItemViewModel { Name = "", Tags = tags }
 			};
 		}
 
@@ -62,7 +62,7 @@ namespace DigitalInspectionNetCore21.Controllers
 				checklistItem.Measurements = checklistItem.Measurements.OrderBy(m => m.Label).ToList();
 				checklistItem.CannedResponses = checklistItem.CannedResponses.OrderBy(c => c.Response).ToList();
 				var tags = _context.Tags.OrderBy(t => t.Name).ToList();
-				var selectedTagIds = checklistItem.Tags.Select(t => t.Id);
+				var selectedTagIds = checklistItem.ChecklistItemTags.Select(joinItem => joinItem.TagId);
 				var viewModel = new EditChecklistItemViewModel
 				{
 					ChecklistItem = checklistItem,
@@ -79,18 +79,22 @@ namespace DigitalInspectionNetCore21.Controllers
 			ChecklistItem newItem = new ChecklistItem
 			{
 				Name = checklistItem.Name,
-				Tags = new List<Tag>(),
+				ChecklistItemTags = tags.Select(tagId =>
+				{
+					var tag = _context.Tags.Find(tagId);
+					// FIXME DJC EF Many2Many - This wont work
+					return new ChecklistItemTag
+					{
+						Tag = tag,
+						TagId = tagId,
+						ChecklistItem = null,
+						ChecklistItemId = new Guid()
+					};
+				}).ToList(),
 				CannedResponses = new List<CannedResponse>(),
 				Measurements = new List<Measurement>()
 			};
 
-			// TODO: Figure out how to do this with LINQ
-			// Push each full tag object onto list
-			foreach (var tagId in tags)
-			{
-				var tag = _context.Tags.Find(tagId);
-				newItem.Tags.Add(tag);
-			}
 
 			_context.ChecklistItems.Add(newItem);
 
@@ -128,7 +132,7 @@ namespace DigitalInspectionNetCore21.Controllers
 					_context.CannedResponses.Attach(cannedResponse);
 				}
 
-				foreach (var tag in checklistItemInDb.Tags)
+				foreach (var tag in checklistItemInDb.ChecklistItemTags.Select(joinItem => joinItem.Tag))
 				{
 					_context.Tags.Attach(tag);
 				}
@@ -159,7 +163,17 @@ namespace DigitalInspectionNetCore21.Controllers
 				}
 
 				checklistItemInDb.Name = vm.ChecklistItem.Name;
-				checklistItemInDb.Tags = _context.Tags.Where(t => vm.SelectedTagIds.Contains(t.Id)).ToList();
+				// FIXME DJC EF Many2Many - Uncertain this will work
+				checklistItemInDb.ChecklistItemTags = _context.Tags
+					.Where(t => vm.SelectedTagIds.Contains(t.Id))
+					.Select(t => new ChecklistItemTag
+					{
+						ChecklistItem = checklistItemInDb,
+						ChecklistItemId = checklistItemInDb.Id,
+						Tag = t,
+						TagId = t.Id
+					})
+					.ToList();
 
 				try
 				{

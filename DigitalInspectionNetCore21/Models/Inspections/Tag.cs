@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using DigitalInspectionNetCore21.Models.Inspections.Joins;
 
 namespace DigitalInspectionNetCore21.Models.Inspections
 {
@@ -20,6 +21,6 @@ namespace DigitalInspectionNetCore21.Models.Inspections
 		[DisplayName("Is visible to employee? *")]
 		public bool IsVisibleToEmployee { get; set; } = true;
 
-		public virtual IList<ChecklistItem> ChecklistItems { get; set; }
+		public virtual IList<ChecklistItemTag> ChecklistItemTags { get; set; }
 	}
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using DigitalInspectionNetCore21.Models.Inspections.Joins;
 using DigitalInspectionNetCore21.Models.Orders;
 
 namespace DigitalInspectionNetCore21.Models.Inspections
@@ -18,7 +19,7 @@ namespace DigitalInspectionNetCore21.Models.Inspections
 		// Navigation properties for model binding
 		public virtual ChecklistItem ChecklistItem { get; set; }
 
-		public virtual IList<InspectionItem> InspectionItems { get; set; }
+		public virtual IList<InspectionItemCannedResponse> InspectionItemCannedResponses { get; set; } = new List<InspectionItemCannedResponse>();
 
 		[Required(ErrorMessage = "Canned response is required")]
 		[DisplayName("Canned Response *")]
@@ -34,6 +35,7 @@ namespace DigitalInspectionNetCore21.Models.Inspections
 		[Required(ErrorMessage = "One or more levels of concern are required")]
 		public IList<RecommendedServiceSeverity> LevelsOfConcern { get; set; } = new List<RecommendedServiceSeverity>();
 
+		// FIXME DJC This should no longer be necessary because of the ValueConverter I've added in ApplicationDbContext. Verify
 		// Trick to force DB to hold onto enum values
 		public string LevelsOfConcernInDb
 		{

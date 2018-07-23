@@ -1,11 +1,10 @@
-﻿// FIXME DJC This is probably done differently here, revisit
+﻿// TODO DJC Make a global exception pipeline
 
 using System;
 using System.Diagnostics;
 
 namespace DigitalInspectionNetCore21.Services
 {
-	// TODO Review with C# Devs at work to find a better solution. Perhaps a global event observer?
 	public static class ExceptionHandlerService
 	{
 		public static void HandleException(Exception dbEx)

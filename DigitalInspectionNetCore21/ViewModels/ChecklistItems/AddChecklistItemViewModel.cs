@@ -17,6 +17,6 @@ namespace DigitalInspectionNetCore21.ViewModels.ChecklistItems
 		public IList<Tag> Tags { get; set; }
 
 
-		public IList<Measurement> Measurements { get; set; }
+		public IList<Measurement> Measurements { get; set; } = new List<Measurement>();
 	}
 }

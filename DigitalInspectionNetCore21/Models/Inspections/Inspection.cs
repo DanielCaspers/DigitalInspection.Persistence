@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DigitalInspectionNetCore21.Models.Inspections.Joins;
 
 namespace DigitalInspectionNetCore21.Models.Inspections
 {
@@ -9,9 +10,9 @@ namespace DigitalInspectionNetCore21.Models.Inspections
 
 		public string WorkOrderId { get; set; }
 
-		public virtual IList<Checklist> Checklists { get; set; } = new List<Checklist>();
+		public virtual IList<ChecklistInspection> ChecklistInspections { get; set; } = new List<ChecklistInspection>();
 
-		public virtual IList<ChecklistItem> ChecklistItems { get; set; } = new List<ChecklistItem>();
+		public virtual IList<ChecklistItemInspection> ChecklistItemInspections { get; set; } = new List<ChecklistItemInspection>();
 
 		public virtual IList<InspectionItem> InspectionItems { get; set; } = new List<InspectionItem>();
 	}

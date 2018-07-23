@@ -31,7 +31,8 @@ namespace DigitalInspectionNetCore21.Models.Inspections.Reports
 			Name = ii.ChecklistItem.Name;
 			IsCustomerConcern = ii.IsCustomerConcern;
 
-			CannedResponses = ii.CannedResponses
+			CannedResponses = ii.InspectionItemCannedResponses
+				.Select(joinItem => joinItem.CannedResponse)
 				.Select(cr => new CannedResponseReportItem(cr.Response, cr.Description, cr.Url))
 				.OrderBy(cri => cri.Response);
 

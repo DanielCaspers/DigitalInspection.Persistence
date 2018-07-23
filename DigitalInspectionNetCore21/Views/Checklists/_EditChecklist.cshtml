@@ -43,8 +43,9 @@
 					@Html.TextBoxFor(m => m.Checklist.Name, new { @class = "form-control" })
 					@Html.ValidationMessageFor(m => m.Checklist.Name)
 				</div>
-
-				<div class="form-group">
+				
+				<!-- TODO DJC Checklist Image - Re-enable if required -->
+				@*<div class="form-group">
 					@Html.TextBoxFor(m => m.Checklist.Image, new { type = "file", accept = "image/*" })
 					<div class="input-group">
 						@Html.TextBoxFor(m => m.Checklist.Image.Title, new { @readonly = "", @class = "form-control", placeholder = "Attach a picture *" })
@@ -57,7 +58,7 @@
 					@Html.ValidationMessageFor(m => m.Checklist.Image)
 
 					<span class="text-warning">Max Size is 8 MB</span>
-				</div>
+				</div>*@
 
 				<table class="table table-striped table-condensed table-responsive form-group">
 					<thead>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using DigitalInspectionNetCore21.Models.Inspections.Joins;
 using DigitalInspectionNetCore21.Models.Orders;
 
 namespace DigitalInspectionNetCore21.Models.Inspections
@@ -19,7 +20,7 @@ namespace DigitalInspectionNetCore21.Models.Inspections
 
 		public RecommendedServiceSeverity Condition { get; set; }
 
-		public virtual IList<CannedResponse> CannedResponses { get; set; } = new List<CannedResponse>();
+		public virtual IList<InspectionItemCannedResponse> InspectionItemCannedResponses { get; set; } = new List<InspectionItemCannedResponse>();
 
 		[NotMapped]
 		public IList<Guid> SelectedCannedResponseIds { get; set; } = new List<Guid>();

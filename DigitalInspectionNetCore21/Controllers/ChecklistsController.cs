@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Models.Inspections;
+using DigitalInspectionNetCore21.Models.Inspections.Joins;
 using DigitalInspectionNetCore21.Services.Core;
 using DigitalInspectionNetCore21.ViewModels.Checklists;
 using Microsoft.AspNetCore.Http;
@@ -58,7 +59,7 @@ namespace DigitalInspectionNetCore21.Controllers
 			
 			foreach(var checklistItem in checklistItems)
 			{
-				isChecklistItemSelected.Add(checklist.ChecklistItems.Contains(checklistItem));
+				isChecklistItemSelected.Add(checklist.ChecklistChecklistItems.Select(joinItem => joinItem.ChecklistItem).Contains(checklistItem));
 			}
 
 
@@ -78,7 +79,6 @@ namespace DigitalInspectionNetCore21.Controllers
 		}
 
 		[HttpPost]
-		//FIXME DJC Need to declare the needed file in the template
 		//https://docs.microsoft.com/en-us/aspnet/core/mvc/models/file-uploads?view=aspnetcore-2.1
 		public ActionResult Update(Guid id, EditChecklistViewModel vm, IFormFile picture)
 		{
@@ -101,17 +101,25 @@ namespace DigitalInspectionNetCore21.Controllers
 						selectedItems.Add(_context.ChecklistItems.Single(ci => ci.Id == selectedItemId));
 					}
 				}
-				foreach(var item in checklistInDb.ChecklistItems)
+				foreach(var item in checklistInDb.ChecklistChecklistItems.Select(joinItem => joinItem.ChecklistItem))
 				{
 					_context.ChecklistItems.Attach(item);
 				}
-				checklistInDb.ChecklistItems = selectedItems;
+				// FIXME DJC EF Many2Many - This could break the relationship
+				checklistInDb.ChecklistChecklistItems = selectedItems.Select(ci => new ChecklistChecklistItem
+				{
+					Checklist = checklistInDb,
+					ChecklistId = checklistInDb.Id,
+					ChecklistItem = ci,
+					ChecklistItemId = ci.Id
+				}).ToList();
 
 				// Only update the picture if a new one was uploaded
 				if(picture != null && picture.Length > 0)
 				{
-					ImageService.DeleteImage(checklistInDb.Image);
-					checklistInDb.Image = ImageService.SaveImage(picture, IMAGE_SUBDIRECTORY, id.ToString());
+					//TODO DJC Checklist Image -Re - enable if required
+					//ImageService.DeleteImage(checklistInDb.Image);
+					//checklistInDb.Image = ImageService.SaveImage(picture, IMAGE_SUBDIRECTORY, id.ToString());
 				}
 
 				_context.SaveChanges();
@@ -128,9 +136,10 @@ namespace DigitalInspectionNetCore21.Controllers
 				Id = Guid.NewGuid()
 			};
 
-			newList.Image = ImageService.SaveImage(list.Picture, IMAGE_SUBDIRECTORY, newList.Id.ToString());
+			//TODO DJC Checklist Image -Re - enable if required
+            //newList.Image = ImageService.SaveImage(list.Picture, IMAGE_SUBDIRECTORY, newList.Id.ToString());
 
-			_context.Checklists.Add(newList);
+				_context.Checklists.Add(newList);
 			_context.SaveChanges();
 
 			return RedirectToAction("Index");
@@ -149,9 +158,10 @@ namespace DigitalInspectionNetCore21.Controllers
 					return PartialView("Toasts/_Toast", ToastService.ResourceNotFound(ResourceName));
 				}
 
-				ImageService.DeleteImage(checklist.Image);
+				//TODO DJC Checklist Image -Re - enable if required
+                //ImageService.DeleteImage(checklist.Image);
 
-				_context.Checklists.Remove(checklist);
+					_context.Checklists.Remove(checklist);
 				_context.SaveChanges();
 			}
 			catch (Exception e)

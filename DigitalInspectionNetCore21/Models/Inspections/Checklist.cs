@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using DigitalInspectionNetCore21.Models.Inspections.Joins;
 
 namespace DigitalInspectionNetCore21.Models.Inspections
 {
@@ -10,16 +11,16 @@ namespace DigitalInspectionNetCore21.Models.Inspections
 		[Required]
 		public Guid Id { get; set; }
 
-		// Many to Many navigation property
-		public virtual IList<ChecklistItem> ChecklistItems { get; set; } = new List<ChecklistItem>();
+		public virtual IList<ChecklistChecklistItem> ChecklistChecklistItems { get; set; } = new List<ChecklistChecklistItem>();
 
 		[Required(ErrorMessage = "Checklist name is required")]
 		[DisplayName("Checklist name *")]
 		public string Name { get; set; }
 
+		//TODO DJC Checklist Image -Re - enable if required
 		//[Required]
-		public Image Image { get; set; }
+		//public Image Image { get; set; }
 
-		public virtual IList<Inspection> Inspections { get; set; } = new List<Inspection>();
+		public virtual IList<ChecklistInspection> ChecklistInspections { get; set; } = new List<ChecklistInspection>();
 	}
 }

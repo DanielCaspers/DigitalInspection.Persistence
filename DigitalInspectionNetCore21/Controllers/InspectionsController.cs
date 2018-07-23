@@ -151,7 +151,7 @@ namespace DigitalInspectionNetCore21.Controllers
 				label = cr.Response,
 				title = cr.Response,
 				value = cr.Id,
-				selected = inspectionItemInDb.CannedResponses.Any(c => c.Id == cr.Id)
+				selected = inspectionItemInDb.InspectionItemCannedResponses.Any(joinItem => joinItem.CannedResponse.Id == cr.Id)
 			});
 
 			var response = new
@@ -396,7 +396,6 @@ namespace DigitalInspectionNetCore21.Controllers
 
 		[HttpPost]
 		// [AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
-		// [AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
 		public PartialViewResult GetViewInspectionPhotosDialog(Guid inspectionItemId, Guid checklistItemId, Guid checklistId, Guid? tagId, string workOrderId)
 		{
 			var checklistItem = _context.ChecklistItems.SingleOrDefault(ci => ci.Id == checklistItemId);
@@ -439,16 +438,16 @@ namespace DigitalInspectionNetCore21.Controllers
 			}
 
 			// Sort all canned responses by response
-			checklist.ChecklistItems.ToList().ForEach(ci =>
+			checklist.ChecklistChecklistItems.ToList().ForEach(joinItem =>
 			{
-				ci.CannedResponses = ci.CannedResponses.OrderBy(cr => cr.Response).ToList();
+				joinItem.ChecklistItem.CannedResponses = joinItem.ChecklistItem.CannedResponses.OrderBy(cr => cr.Response).ToList();
 			});
 
 			var inspection = InspectionService.GetOrCreateInspection(_context, workOrderId, checklist);
 
 			// Filter inspection items
-			Func<InspectionItem, bool> filterByChecklistsAndTags = ii => ii.ChecklistItem.Checklists.Any(c => c.Id == checklistId) && ii.ChecklistItem.Tags.Any(t => t.Id == tagId);
-			Func<InspectionItem, bool> filterByChecklists = ii => ii.ChecklistItem.Checklists.Any(c => c.Id == checklistId);
+			Func<InspectionItem, bool> filterByChecklistsAndTags = ii => ii.ChecklistItem.ChecklistChecklistItems.Any(joinItem => joinItem.Checklist.Id == checklistId) && ii.ChecklistItem.ChecklistItemTags.Select(joinItem => joinItem.Tag).Any(t => t.Id == tagId);
+			Func<InspectionItem, bool> filterByChecklists = ii => ii.ChecklistItem.ChecklistChecklistItems.Any(joinItem => joinItem.Checklist.Id == checklistId);
 
 			inspection.InspectionItems = inspection.InspectionItems
 				.Where(tagId.HasValue ? filterByChecklistsAndTags : filterByChecklists)
@@ -457,7 +456,7 @@ namespace DigitalInspectionNetCore21.Controllers
 
 			foreach(var inspectionItem in inspection.InspectionItems)
 			{
-				inspectionItem.SelectedCannedResponseIds = inspectionItem.CannedResponses.Select(cr => cr.Id).ToList();
+				inspectionItem.SelectedCannedResponseIds = inspectionItem.InspectionItemCannedResponses.Select(joinItem => joinItem.CannedResponse.Id).ToList();
 			}
 
 			return new InspectionDetailViewModel
@@ -533,8 +532,8 @@ namespace DigitalInspectionNetCore21.Controllers
 
 			// Only show inspection items which correspond to one or more customer visible tags
 			var inspectionItems = unfilteredInspectionItems
-				.Where(ii => ii.ChecklistItem.Tags
-					.Select(t => t.Id)
+				.Where(ii => ii.ChecklistItem.ChecklistItemTags
+					.Select(joinItem => joinItem.TagId)
 					.Intersect(applicableTags)
 					.Any()
 				).ToList();
@@ -552,7 +551,8 @@ namespace DigitalInspectionNetCore21.Controllers
 			{
 				var inspectionReportGroups = inspectionItems
 					.GroupBy(ii =>
-						ii.ChecklistItem.Tags
+						ii.ChecklistItem.ChecklistItemTags
+							.Select(joinItem => joinItem.Tag)
 							.Where(t => t.IsVisibleToCustomer)
 							.Select(t => t.Name)
 							.First()

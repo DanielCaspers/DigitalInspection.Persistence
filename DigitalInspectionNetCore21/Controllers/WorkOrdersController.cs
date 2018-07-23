@@ -62,7 +62,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		#region Partial View Actions
 
 		// GET: Work Orders page and return response to index.cshtml
-		[AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
+		//[AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
 		public async Task<PartialViewResult> Index()
 		{
 			var task = await GetWorkOrdersViewModel();
@@ -70,26 +70,26 @@ namespace DigitalInspectionNetCore21.Controllers
 		}
 
 		// GET: _WorkOrderTable partial and return it to _WorkOrderTable.cshtml 
-		[AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
+		//[AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
 		public async Task<PartialViewResult> _WorkOrderTable()
 		{
 			var task = await GetWorkOrdersViewModel();
 			return PartialView(task);
 		}
 
-		[AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
+		//[AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
 		public PartialViewResult _Customer(string id, bool canEdit = false)
 		{
 			return GetWorkOrderViewModel(id, BuildCustomerTab(id), CustomerViewName, canEdit );
 		}
 
-		[AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
+		//[AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
 		public PartialViewResult _Vehicle(string id, bool canEdit = false)
 		{
 			return GetWorkOrderViewModel(id, BuildVehicleTab(id), VehicleViewName, canEdit);
 		}
 
-		[AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
+		//[AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
 		public PartialViewResult _Inspection(string id)
 		{
 			return PartialView(new WorkOrderInspectionViewModel
@@ -102,7 +102,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		}
 
 		[HttpPost]
-		[AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
+		//[AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
 		public ActionResult ReleaseCustomerFileLock(string id)
 		{
 			var task = Task.Run(async () => {
@@ -122,7 +122,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		}
 
 		[HttpPost]
-		[AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
+		//[AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
 		public ActionResult ReleaseVehicleFileLock(string id)
 		{
 			var task = Task.Run(async () => {
@@ -142,7 +142,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		}
 
 		[HttpPost]
-		[AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
+		//[AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
 		public ActionResult SaveCustomer(string id, WorkOrderDetailViewModel vm, bool releaselockonly = false)
 		{
 			var task = Task.Run(async () => {
@@ -162,7 +162,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		}
 
 		[HttpPost]
-		[AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
+		//[AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
 		public ActionResult SaveVehicle(string id, WorkOrderDetailViewModel vm)
 		{
 			var task = Task.Run(async () => {
