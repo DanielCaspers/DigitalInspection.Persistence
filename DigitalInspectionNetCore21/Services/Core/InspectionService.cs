@@ -104,7 +104,7 @@ namespace DigitalInspectionNetCore21.Services.Core
 					// FIXME DJC EF Many2Many - Had to widen from just adjusting canned responses, so this may impact property tracking
 					.Select(cr => new InspectionItemCannedResponse
 					{
-						InsepctionItem = inspectionItem,
+						InspectionItem = inspectionItem,
 						CannedResponse = cr,
 						InspectionItemId = inspectionItem.Id,
 						CannedResponseId = cr.Id

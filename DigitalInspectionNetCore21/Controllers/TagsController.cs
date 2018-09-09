@@ -1,70 +1,72 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using DigitalInspectionNetCore21.Models;
 using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Models.Inspections;
-using DigitalInspectionNetCore21.Services;
 using DigitalInspectionNetCore21.ViewModels.Tags;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DigitalInspectionNetCore21.Controllers
 {
 	//[AuthorizeRoles(Roles.Admin)]
-	public class TagsController : BaseController
+	[Route("[controller]")]
+	public class TagsController : BaseController, IRepositoryController<Tag, AddTagViewModel, AddTagViewModel>
 	{
 		public TagsController(ApplicationDbContext db) : base(db)
 		{
 			ResourceName = "Tag";
 		}
 
-		private ManageTagsViewModel GetTagViewModel()
+		[HttpGet("")]
+		public ActionResult<IEnumerable<Tag>> GetAll()
 		{
-			var tags = _context.Tags;
-			return new ManageTagsViewModel
-			{
-				Tags = tags.OrderBy(tag => tag.Name).ToList(),
-				AddTagVM = new AddTagViewModel { Name = "" }
-			};
+			var tags = _context.Tags
+				.OrderBy(t => t.Name)
+				.ToList();
+
+			return Json(tags);
 		}
 
-		// GET: Tags page and return response to index.cshtml
-		public PartialViewResult Index()
-		{
-			return PartialView(GetTagViewModel());
-		}
-
-		// GET: _TagList partial and return it to _TagList.cshtml 
-		public PartialViewResult _TagList()
-		{
-			return PartialView(GetTagViewModel());
-		}
-
-		//GET: Tags/Edit/:id
-		public PartialViewResult Edit(Guid id)
+		[HttpGet("{id}")]
+		public ActionResult<Tag> GetById(Guid id)
 		{
 			var tag = _context.Tags.SingleOrDefault(t => t.Id == id);
 
 			if (tag == null)
 			{
-				return PartialView("Toasts/_Toast", ToastService.ResourceNotFound(ResourceName));
+				return NotFound();
 			}
 			else
 			{
-				var viewModel = new EditTagViewModel
-				{
-					Tag = tag
-				};
-				return PartialView("_EditTag", viewModel);
+				return Json(tag);
 			}
 		}
 
-		[HttpPost]
-		public ActionResult Update(Guid id, AddTagViewModel tag)
+		[HttpPost("")]
+		public ActionResult<Tag> Create([FromBody]AddTagViewModel request)
+		{
+			var tag = new Tag
+			{
+				Name = request.Name,
+				IsVisibleToCustomer = request.IsVisibleToCustomer,
+				IsVisibleToEmployee = request.IsVisibleToEmployee
+			};
+
+			_context.Tags.Add(tag);
+			_context.SaveChanges();
+
+			var createdUri = new Uri(HttpContext.Request.Path, UriKind.Relative);
+			return Created(createdUri, tag);
+		}
+
+		[HttpPut("{id}")]
+		public ActionResult<Tag> Update(Guid id, [FromBody]AddTagViewModel tag)
 		{
 			var tagInDb = _context.Tags.SingleOrDefault(t => t.Id == id);
 			if(tagInDb == null)
 			{
-				return PartialView("Toasts/_Toast", ToastService.ResourceNotFound(ResourceName));
+				return NotFound();
 			}
 			else
 			{
@@ -73,48 +75,23 @@ namespace DigitalInspectionNetCore21.Controllers
 				tagInDb.IsVisibleToEmployee = tag.IsVisibleToEmployee;
 
 				_context.SaveChanges();
-				return RedirectToAction("Edit", new { id = tagInDb.Id });
+
+				return NoContent();
 			}
 		}
 
-		[HttpPost]
-		public ActionResult Create(AddTagViewModel tag)
+		[HttpDelete("{id}")]
+		public NoContentResult Delete(Guid id)
 		{
-			Tag newTag = new Tag
+			var tagInDb = _context.Tags.Find(id);
+
+			if (tagInDb != null)
 			{
-				Name = tag.Name,
-				IsVisibleToCustomer = tag.IsVisibleToCustomer,
-				IsVisibleToEmployee = tag.IsVisibleToEmployee
-			};
-
-			_context.Tags.Add(newTag);
-			_context.SaveChanges();
-
-			return RedirectToAction("_TagList");
-		}
-
-		// POST: Tags/Delete/5
-		[HttpPost]
-		public ActionResult Delete(Guid id)
-		{
-			try
-			{
-				var tagInDb = _context.Tags.Find(id);
-
-				if (tagInDb == null)
-				{
-					return PartialView("Toasts/_Toast", ToastService.ResourceNotFound(ResourceName));
-				}
-
 				_context.Tags.Remove(tagInDb);
 				_context.SaveChanges();
 			}
-			catch (Exception e)
-			{
-				return PartialView("Toasts/_Toast", ToastService.UnknownErrorOccurred(e));
-			}
-			return RedirectToAction("_TagList");
-		}
 
+			return NoContent();
+		}
 	}
 }

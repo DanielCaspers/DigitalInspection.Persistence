@@ -1,90 +1,79 @@
-﻿using DigitalInspectionNetCore21.Models;
-using DigitalInspectionNetCore21.Services;
+﻿using DigitalInspectionNetCore21.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Models.Inspections;
 using DigitalInspectionNetCore21.Models.Inspections.Joins;
-using DigitalInspectionNetCore21.Services.Core;
 using DigitalInspectionNetCore21.ViewModels.Checklists;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DigitalInspectionNetCore21.Controllers
 {
 	//[AuthorizeRoles(Roles.Admin)]
-	public class ChecklistsController : BaseController
+	[Route("[controller]")]
+	public class ChecklistsController : BaseController, IRepositoryController<Checklist, AddChecklistViewModel, EditChecklistViewModel>
 	{
-		private static readonly string IMAGE_SUBDIRECTORY = "Checklists";
-
 		public ChecklistsController(ApplicationDbContext db) : base(db)
 		{
 			ResourceName = "Checklist";
 		}
 
-		private ManageChecklistMasterViewModel GetChecklistViewModel()
+		[HttpGet("")]
+		public ActionResult<IEnumerable<Checklist>> GetAll()
 		{
-			var checklists = _context.Checklists;
+			var checklistItems = _context.Checklists
+					.Include(c => c.ChecklistChecklistItems)
+				.OrderBy(c => c.Name)
+				.ToList();
 
-			return new ManageChecklistMasterViewModel
-			{
-				Checklists = checklists.OrderBy(c => c.Name).ToList(),
-				AddChecklistVM = new AddChecklistViewModel
-				{
-					Name = ""
-				}
-			};
+			return Json(checklistItems);
 		}
 
-		// GET: Checklists page and return response to index.cshtml
-		public PartialViewResult Index()
+		[HttpGet("{id}")]
+		public ActionResult<Checklist> GetById(Guid id)
 		{
-			return PartialView(GetChecklistViewModel());
-		}
-
-		// GET: Checklists_ChecklistList partial and return it to _ChecklistList.cshtml
-		public PartialViewResult _ChecklistList()
-		{
-			return PartialView(GetChecklistViewModel());
-		}
-
-		//GET: Checklists/Edit/:id
-		public PartialViewResult Edit(Guid id)
-		{
-			var checklist = _context.Checklists.SingleOrDefault(c => c.Id == id);
-			IList<ChecklistItem> checklistItems = _context.ChecklistItems.OrderBy(c => c.Name).ToList();
-			IList<bool> isChecklistItemSelected = new List<bool>();
-			
-			foreach(var checklistItem in checklistItems)
-			{
-				isChecklistItemSelected.Add(checklist.ChecklistChecklistItems.Select(joinItem => joinItem.ChecklistItem).Contains(checklistItem));
-			}
-
+			var checklist = _context.Checklists
+				.Include(c => c.ChecklistChecklistItems)
+				.SingleOrDefault(c => c.Id == id);
 
 			if (checklist == null)
 			{
-				return PartialView("Toasts/_Toast", ToastService.ResourceNotFound(ResourceName));
+				return NotFound();
 			}
 			else
 			{
-				var viewModel = new EditChecklistViewModel {
-					Checklist = checklist,
-					ChecklistItems = checklistItems,
-					IsChecklistItemSelected = isChecklistItemSelected
-				};
-				return PartialView("_EditChecklist", viewModel);
+				return Json(checklist);
 			}
 		}
 
-		[HttpPost]
-		//https://docs.microsoft.com/en-us/aspnet/core/mvc/models/file-uploads?view=aspnetcore-2.1
-		public ActionResult Update(Guid id, EditChecklistViewModel vm, IFormFile picture)
+		[HttpPost("")]
+		public ActionResult<Checklist> Create([FromBody]AddChecklistViewModel request)
 		{
-			var checklistInDb = _context.Checklists.SingleOrDefault(c => c.Id == id);
-			if(checklistInDb == null)
+			var checklist = new Checklist
 			{
-				return PartialView("Toasts/_Toast", ToastService.ResourceNotFound(ResourceName));
+				Name = request.Name,
+				Id = Guid.NewGuid()
+			};
+
+			_context.Checklists.Add(checklist);
+			_context.SaveChanges();
+
+			var createdUri = new Uri(HttpContext.Request.Path, UriKind.Relative);
+			return Created(createdUri, checklist);
+		}
+
+		[HttpPut("{id}")]
+		//https://docs.microsoft.com/en-us/aspnet/core/mvc/models/file-uploads?view=aspnetcore-2.1
+		public ActionResult<Checklist> Update(Guid id, [FromBody]EditChecklistViewModel vm)
+		{
+			var checklistInDb = _context.Checklists
+				.Include(ci => ci.ChecklistChecklistItems)
+				.SingleOrDefault(c => c.Id == id);
+			if (checklistInDb == null)
+			{
+				return NotFound();
 			}
 			else
 			{
@@ -92,7 +81,7 @@ namespace DigitalInspectionNetCore21.Controllers
 
 				IList<ChecklistItem> selectedItems = new List<ChecklistItem>();
 				// Using plain for loop for parallel array data reference
-				for(var i = 0; i < vm.IsChecklistItemSelected.Count; i++)
+				for (var i = 0; i < vm.IsChecklistItemSelected.Count; i++)
 				{
 					if (vm.IsChecklistItemSelected[i])
 					{
@@ -100,7 +89,7 @@ namespace DigitalInspectionNetCore21.Controllers
 						selectedItems.Add(_context.ChecklistItems.Single(ci => ci.Id == selectedItemId));
 					}
 				}
-				foreach(var item in checklistInDb.ChecklistChecklistItems.Select(joinItem => joinItem.ChecklistItem))
+				foreach (var item in checklistInDb.ChecklistChecklistItems.Select(joinItem => joinItem.ChecklistItem))
 				{
 					_context.ChecklistItems.Attach(item);
 				}
@@ -114,48 +103,22 @@ namespace DigitalInspectionNetCore21.Controllers
 				}).ToList();
 
 				_context.SaveChanges();
-				return RedirectToAction("Edit", new { id = checklistInDb.Id });
+				return NoContent();
 			}
 		}
 
-		[HttpPost]
-		public ActionResult Create(AddChecklistViewModel list)
+		[HttpDelete("{id}")]
+		public NoContentResult Delete(Guid id)
 		{
-			Checklist newList = new Checklist
+			var checklist = _context.Checklists.Find(id);
+
+			if (checklist != null)
 			{
-				Name = list.Name,
-				Id = Guid.NewGuid(),
-				Image = new Image()
-			};
-
-			_context.Checklists.Add(newList);
-			_context.SaveChanges();
-
-			return RedirectToAction("Index");
-		}
-
-		// POST: Checklist/Delete/5
-		[HttpPost]
-		public ActionResult Delete(Guid id)
-		{
-			try
-			{
-				var checklist = _context.Checklists.Find(id);
-
-				if (checklist == null)
-				{
-					return PartialView("Toasts/_Toast", ToastService.ResourceNotFound(ResourceName));
-				}
-
 				_context.Checklists.Remove(checklist);
 				_context.SaveChanges();
 			}
-			catch (Exception e)
-			{
-				return PartialView("Toasts/_Toast", ToastService.UnknownErrorOccurred(e));
-			}
-			return RedirectToAction("_ChecklistList");
-		}
 
+			return NoContent();
+		}
 	}
 }

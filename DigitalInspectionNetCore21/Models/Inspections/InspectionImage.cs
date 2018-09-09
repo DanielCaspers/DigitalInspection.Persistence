@@ -1,5 +1,8 @@
-﻿namespace DigitalInspectionNetCore21.Models.Inspections
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace DigitalInspectionNetCore21.Models.Inspections
 {
+	[Table("Images")]
 	public class InspectionImage : Image
 	{
 		public virtual InspectionItem InspectionItem { get; set; }

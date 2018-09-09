@@ -1,5 +1,4 @@
-﻿using DigitalInspectionNetCore21.Models;
-using DigitalInspectionNetCore21.Models.Web;
+﻿using DigitalInspectionNetCore21.Models.Web;
 using DigitalInspectionNetCore21.ViewModels;
 using DigitalInspectionNetCore21.Services;
 using System.Threading.Tasks;
@@ -11,15 +10,17 @@ using DigitalInspectionNetCore21.Models.Orders;
 using System.IO;
 using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Models.Inspections;
+using DigitalInspectionNetCore21.Models.Inspections.Joins;
 using DigitalInspectionNetCore21.Models.Inspections.Reports;
 using DigitalInspectionNetCore21.Services.Core;
 using DigitalInspectionNetCore21.Services.Web;
-using DigitalInspectionNetCore21.Utils;
 using DigitalInspectionNetCore21.ViewModels.Inspections;
 using DigitalInspectionNetCore21.ViewModels.TabContainers;
 using DigitalInspectionNetCore21.ViewModels.VehicleHistory;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace DigitalInspectionNetCore21.Controllers
 {
@@ -39,16 +40,6 @@ namespace DigitalInspectionNetCore21.Controllers
 			return PartialView(GetInspectionViewModel(workOrderId, checklistId, tagId));
 		}
 
-		/*
-		 * Used so that on subsequent gets after we redirect from MarkAsCompleted,
-		 * we can continue navigating around using the tags
-		 */
-		// [AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
-		public PartialViewResult MarkAsCompleted(string workOrderId, Guid checklistId, Guid? tagId)
-		{
-			return PartialView("Index", GetInspectionViewModel(workOrderId, checklistId, tagId));
-		}
-
 		[AllowAnonymous]
 		public JsonResult InspectionIdForOrder(string workOrderId)
 		{
@@ -62,7 +53,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		[AllowAnonymous]
 		public JsonResult ReportForOrder(string workOrderId, bool grouped = false, bool includeUnknown = false)
 		{
-			var inspectionItems = _context.Inspections
+			var inspectionItems = GetInspectionItemsFromDb()
 				.Single(i => i.WorkOrderId == workOrderId)
 				.InspectionItems;
 
@@ -72,11 +63,27 @@ namespace DigitalInspectionNetCore21.Controllers
 		[AllowAnonymous]
 		public JsonResult Report(Guid inspectionId, bool grouped = false, bool includeUnknown = false)
 		{
-			var inspectionItems = _context.Inspections
+			var inspectionItems = GetInspectionItemsFromDb()
 				.Single(i => i.Id == inspectionId)
 				.InspectionItems;
 
 			return BuildInspectionReportInternal(inspectionItems, grouped, includeUnknown);
+		}
+
+		private IIncludableQueryable<Inspection, CannedResponse> GetInspectionItemsFromDb()
+		{
+			return _context.Inspections
+					.Include(i => i.InspectionItems)
+						.ThenInclude(ii => ii.InspectionImages)
+					.Include(i => i.InspectionItems)
+						.ThenInclude(ii => ii.ChecklistItem)
+							.ThenInclude(ii => ii.ChecklistItemTags)
+					.Include(i => i.InspectionItems)
+						.ThenInclude(ii => ii.InspectionMeasurements)
+							.ThenInclude(im => im.Measurement)
+					.Include(i => i.InspectionItems)
+						.ThenInclude(ii => ii.InspectionItemCannedResponses)
+							.ThenInclude(iirc => iirc.CannedResponse);
 		}
 
 		[HttpPost]
@@ -102,30 +109,6 @@ namespace DigitalInspectionNetCore21.Controllers
 
 		[HttpPost]
 		// [AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
-		public ActionResult MarkAsCompleted(Guid inspectionId, string workOrderId, Guid checklistId, Guid? tagId)
-		{
-			var inspection = _context.Inspections.Single(i => i.Id == inspectionId);
-
-			var task = Task.Run(async () => {
-				return await WorkOrderService.SetStatus(CurrentUserClaims, inspection.WorkOrderId, GetCompanyNumber(), WorkOrderStatusCode.InspectionCompleted);
-			});
-			// Force Synchronous run for Mono to work. See Issue #37
-			task.Wait();
-
-			if (task.Result.IsSuccessStatusCode)
-			{
-				return RedirectToAction("Index","WorkOrders");
-			}
-			else
-			{
-				var viewModel = GetInspectionViewModel(workOrderId, checklistId, tagId);
-				viewModel.Toast = ToastService.WorkOrderError(task.Result);
-				return PartialView("Index", viewModel);
-			}
-		}
-
-		[HttpPost]
-		// [AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
 		public ActionResult Condition(Guid inspectionItemId, RecommendedServiceSeverity inspectionItemCondition)
 		{
 			// Save Condition
@@ -133,12 +116,12 @@ namespace DigitalInspectionNetCore21.Controllers
 
 			if (inspectionItemInDb == null)
 			{
-				return PartialView("Toasts/_Toast", ToastService.ResourceNotFound(_subresource));
+				return NotFound();
 			}
 
 			if (InspectionService.UpdateInspectionItemCondition(_context, inspectionItemInDb, inspectionItemCondition) == false)
 			{
-				return PartialView("Toasts/_Toast", ToastService.UnknownErrorOccurred());
+				return StatusCode(500);
 			}
 
 			// Prepare updated multiselect list for client
@@ -171,7 +154,7 @@ namespace DigitalInspectionNetCore21.Controllers
 			IList<Guid> selectedCannedResponseIds = vm.Inspection.InspectionItems.Single(ii => ii.Id == inspectionItemId).SelectedCannedResponseIds;
 
 			InspectionService.UpdateInspectionItemCannedResponses(_context, inspectionItemInDb, selectedCannedResponseIds);
-			return new EmptyResult();
+			return NoContent();
 		}
 
 		[HttpPost]
@@ -182,15 +165,15 @@ namespace DigitalInspectionNetCore21.Controllers
 
 			if (inspectionItemInDb == null)
 			{
-				return PartialView("Toasts/_Toast", ToastService.ResourceNotFound(_subresource));
+				return NotFound();
 			}
 
 			if (InspectionService.UpdateIsCustomerConcern(_context, inspectionItemInDb, isCustomerConcern))
 			{
-				return new EmptyResult();
+				return NoContent();
 			}
 
-			return PartialView("Toasts/_Toast", ToastService.UnknownErrorOccurred());
+			return StatusCode(500);
 		}
 
 		[HttpPost]
@@ -201,43 +184,43 @@ namespace DigitalInspectionNetCore21.Controllers
 
 			if (inspectionItemInDb == null)
 			{
-				return PartialView("Toasts/_Toast", ToastService.ResourceNotFound(_subresource));
+				return NotFound();
 			}
 
 			if (InspectionService.UpdateInspectionItemNote(_context, inspectionItemInDb, itemNoteVm.Note))
 			{
-				return new EmptyResult();
+				return NoContent();
 			}
 
-			return PartialView("Toasts/_Toast", ToastService.UnknownErrorOccurred());
+			return StatusCode(500);
 		}
 
-		[HttpPost]
-		// [AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
-		public ActionResult WorkOrderNote(AddInspectionWorkOrderNoteViewModel workOrderNoteVm)
-		{
-			if (workOrderNoteVm.Note == null)
-			{
-				workOrderNoteVm.Note = "";
-			}
+		//[HttpPost]
+		//// [AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
+		//public ActionResult WorkOrderNote(AddInspectionWorkOrderNoteViewModel workOrderNoteVm)
+		//{
+		//	if (workOrderNoteVm.Note == null)
+		//	{
+		//		workOrderNoteVm.Note = "";
+		//	}
 
-			// https://msdn.microsoft.com/en-us/library/tabh47cf(v=vs.110).aspx
-			// NOTE: Cannot use Environment.NewLine since the filter will be less strict on Mono. 
-			IList<string> returnCarriageSeparatedNotes = workOrderNoteVm.Note.GroupByLineEnding();
+		//	// https://msdn.microsoft.com/en-us/library/tabh47cf(v=vs.110).aspx
+		//	// NOTE: Cannot use Environment.NewLine since the filter will be less strict on Mono. 
+		//	IList<string> returnCarriageSeparatedNotes = workOrderNoteVm.Note.GroupByLineEnding();
 
-			var task = Task.Run(async () => {
-				return await WorkOrderService.SaveWorkOrderNote(CurrentUserClaims, workOrderNoteVm.WorkOrderId, GetCompanyNumber(), returnCarriageSeparatedNotes);
-			});
-			// Force Synchronous run for Mono to work. See Issue #37
-			task.Wait();
+		//	var task = Task.Run(async () => {
+		//		return await WorkOrderService.SaveWorkOrderNote(CurrentUserClaims, workOrderNoteVm.WorkOrderId, GetCompanyNumber(), returnCarriageSeparatedNotes);
+		//	});
+		//	// Force Synchronous run for Mono to work. See Issue #37
+		//	task.Wait();
 
-			if (task.Result.IsSuccessStatusCode)
-			{
-				return new EmptyResult();
-			}
+		//	if (task.Result.IsSuccessStatusCode)
+		//	{
+		//		return new EmptyResult();
+		//	}
 
-			return PartialView("Toasts/_Toast", ToastService.WorkOrderError(task.Result));
-		}
+		//	return PartialView("Toasts/_Toast", ToastService.WorkOrderError(task.Result));
+		//}
 
 		[HttpPost]
 		// [AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
@@ -247,15 +230,15 @@ namespace DigitalInspectionNetCore21.Controllers
 
 			if (inspectionItemInDb == null)
 			{
-				return PartialView("Toasts/_Toast", ToastService.ResourceNotFound(_subresource));
+				return NotFound();
 			}
 
 			if (InspectionService.UpdateInspectionItemMeasurements(_context, inspectionItemInDb, MeasurementsVM.InspectionItem.InspectionMeasurements))
 			{
-				return new EmptyResult();
+				return NoContent();
 			}
 
-			return PartialView("Toasts/_Toast", ToastService.UnknownErrorOccurred());
+			return StatusCode(500);
 		}
 
 		[HttpPost]
@@ -266,17 +249,17 @@ namespace DigitalInspectionNetCore21.Controllers
 
 			if (inspectionItemInDb == null)
 			{
-				return PartialView("Toasts/_Toast", ToastService.ResourceNotFound(_subresource));
+				return NotFound();
 			}
 			// New guid is used as a random prefix to the filename to ensure uniqueness
 			Image imageDto = ImageService.SaveImage(photoVM.Picture, new[] { IMAGE_DIRECTORY, photoVM.WorkOrderId, photoVM.InspectionItem.Id.ToString() }, Guid.NewGuid().ToString(), false);
 
 			if (InspectionService.AddInspectionItemImage(_context, inspectionItemInDb, imageDto))
 			{
-				return RedirectToAction("Index", new { workOrderId = photoVM.WorkOrderId, checklistId = photoVM.ChecklistId, tagId = photoVM.TagId });
+				return NoContent();
 			}
 
-			return PartialView("Toasts/_Toast", ToastService.UnknownErrorOccurred());
+			return StatusCode(500);
 		}
 
 		[HttpPost]
@@ -287,24 +270,24 @@ namespace DigitalInspectionNetCore21.Controllers
 
 			if (image == null)
 			{
-				return PartialView("Toasts/_Toast", ToastService.ResourceNotFound("Image"));
+				return NotFound();
 			}
 
 			var inspectionItemInDb = _context.InspectionItems.SingleOrDefault(item => item.Id == image.InspectionItem.Id);
 
 			if (inspectionItemInDb == null)
 			{
-				return PartialView("Toasts/_Toast", ToastService.ResourceNotFound(_subresource));
+				return NotFound();
 			}
 
 			ImageService.DeleteImage(image);
 
 			if (InspectionService.DeleteInspectionItemImage(_context, image))
 			{
-				return RedirectToAction("Index", new { workOrderId, checklistId, tagId });
+				return NoContent();
 			}
 
-			return PartialView("Toasts/_Toast", ToastService.UnknownErrorOccurred());
+			return StatusCode(500);
 		}
 
 		[HttpPost]
@@ -314,84 +297,21 @@ namespace DigitalInspectionNetCore21.Controllers
 			var inspectionItemInDb = _context.InspectionItems.SingleOrDefault(item => item.Id == inspectionItemId);
 			if (inspectionItemInDb == null)
 			{
-				return PartialView("Toasts/_Toast", ToastService.ResourceNotFound(_subresource));
+				return NotFound();
 			}
 
 			var inspectionImage = inspectionItemInDb.InspectionImages.SingleOrDefault(ii => ii.Id == inspectionImageId);
 			if (inspectionImage == null)
 			{
-				return PartialView("Toasts/_Toast", ToastService.ResourceNotFound("Inspection Image"));
+				return NotFound();
 			}
 
 			if (InspectionService.UpdateInspectionImageVisibility(_context, inspectionImage, isVisibleToCustomer))
 			{
-				return new EmptyResult();
+				return NoContent();
 			}
 
-			return PartialView("Toasts/_Toast", ToastService.UnknownErrorOccurred());
-		}
-
-		[HttpPost]
-		// [AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
-		public PartialViewResult GetAddMeasurementDialog(Guid inspectionItemId, Guid checklistItemId)
-		{
-			var checklistItem = _context.ChecklistItems.Single(ci => ci.Id == checklistItemId);
-			var inspectionItem = _context.InspectionItems.Single(item => item.Id == inspectionItemId);
-			inspectionItem.InspectionMeasurements = inspectionItem.InspectionMeasurements.OrderBy(im => im.Measurement.Label).ToList();
-
-			return PartialView("_AddMeasurementDialog", new AddMeasurementViewModel
-			{
-				ChecklistItem = checklistItem,
-				InspectionItem = inspectionItem,
-				Measurements = checklistItem.Measurements.OrderBy(m => m.Label).ToList()
-			});
-		}
-
-		[HttpPost]
-		// [AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
-		public PartialViewResult GetAddInspectionWorkOrderNoteDialog(string workOrderId)
-		{
-			var workOrderResponse = GetWorkOrderResponse(workOrderId);
-			var workOrder = workOrderResponse.Entity;
-
-			var combinedNote = string.Join(Environment.NewLine, workOrder.Notes);
-
-			return PartialView("../Shared/Dialogs/_AddInspectionWorkOrderNoteDialog", new AddInspectionWorkOrderNoteViewModel
-			{
-				WorkOrderId = workOrderId,
-				Note = combinedNote
-			});
-		}
-
-		[HttpPost]
-		// [AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
-		public PartialViewResult GetAddInspectionItemNoteDialog(Guid inspectionItemId, Guid checklistItemId)
-		{
-			var checklistItem = _context.ChecklistItems.SingleOrDefault(ci => ci.Id == checklistItemId);
-			var inspectionItem = _context.InspectionItems.Single(item => item.Id == inspectionItemId);
-
-			return PartialView("_AddInspectionItemNoteDialog", new AddInspectionItemNoteViewModel
-			{
-				InspectionItem = inspectionItem,
-				ChecklistItem = checklistItem,
-				Note = inspectionItem.Note
-			});
-		}
-
-		[HttpPost]
-		// [AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
-		public PartialViewResult GetUploadInspectionPhotosDialog(Guid inspectionItemId, Guid checklistItemId, Guid checklistId, Guid? tagId, string workOrderId)
-		{
-			var checklistItem = _context.ChecklistItems.SingleOrDefault(ci => ci.Id == checklistItemId);
-			var inspectionItem = _context.InspectionItems.SingleOrDefault(item => item.Id == inspectionItemId);
-
-			return PartialView("_UploadInspectionPhotosDialog", new UploadInspectionPhotosViewModel
-			{
-				InspectionItem = inspectionItem,
-				ChecklistItem = checklistItem,
-				TagId = tagId,
-				WorkOrderId = workOrderId
-			});
+			return StatusCode(500);
 		}
 
 		[HttpPost]
@@ -485,6 +405,7 @@ namespace DigitalInspectionNetCore21.Controllers
 			};
 		}
 
+		// TODO remove from new DI
 		private ScrollableTabContainerViewModel GetScrollableTabContainerViewModel(Guid? tagId)
 		{
 			// Construct tabs based on current selection
@@ -544,7 +465,6 @@ namespace DigitalInspectionNetCore21.Controllers
 				inspectionItems = inspectionItems.Where(ii => ii.Condition != RecommendedServiceSeverity.UNKNOWN).ToList();
 			}
 
-			// FIXME DJC Review sanity of this
 			string baseUrl = $"{this.Request.Scheme}://{this.Request.Host}";
 
 			if (grouped)
@@ -558,7 +478,8 @@ namespace DigitalInspectionNetCore21.Controllers
 							.First()
 					)
 					.OrderBy(ig => ig.OrderBy(ii => ii.Condition).First().Condition)
-					.Select(ig => new InspectionReportGroup(ig, baseUrl));
+					.Select(ig => new InspectionReportGroup(ig, baseUrl))
+					.ToList();
 
 				return Json(inspectionReportGroups);
 			}
@@ -566,7 +487,8 @@ namespace DigitalInspectionNetCore21.Controllers
 			{
 				var inspectionReportItems = inspectionItems
 					.OrderBy(ii => ii.Condition)
-					.Select(ii => new InspectionReportItem(ii, baseUrl));
+					.Select(ii => new InspectionReportItem(ii, baseUrl))
+					.ToList();
 
 				return Json(inspectionReportItems);
 			}

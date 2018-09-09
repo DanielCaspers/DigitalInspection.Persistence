@@ -1,206 +1,166 @@
 ﻿using System;
 using System.Linq;
-using DigitalInspectionNetCore21.Models;
-using DigitalInspectionNetCore21.Services;
 using System.Collections.Generic;
 using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Models.Inspections;
 using DigitalInspectionNetCore21.Models.Inspections.Joins;
 using DigitalInspectionNetCore21.ViewModels.ChecklistItems;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DigitalInspectionNetCore21.Controllers
 {
 	//[AuthorizeRoles(Roles.Admin)]
-	public class ChecklistItemsController : BaseController
+	[Route("[controller]")]
+	public class ChecklistItemsController : BaseController, IRepositoryController<ChecklistItem, AddChecklistItemViewModel, EditChecklistItemViewModel>
 	{
 		public ChecklistItemsController(ApplicationDbContext db) : base(db)
 		{
 			ResourceName = "Checklist item";
 		}
 
-		private ManageChecklistItemsViewModel GetChecklistItemViewModel()
+		[HttpGet("")]
+		public ActionResult<IEnumerable<ChecklistItem>> GetAll()
 		{
-			var checklistItems = _context.ChecklistItems.OrderBy(c => c.Name).ToList();
-			var tags = _context.Tags.OrderBy(t => t.Name).ToList();
+			var checklistItems = _context.ChecklistItems
+				.OrderBy(ci => ci.Name)
+				.ToList();
 
-			return new ManageChecklistItemsViewModel
-			{
-				ChecklistItems = checklistItems,
-				AddChecklistItemVM = new AddChecklistItemViewModel { Name = "", Tags = tags }
-			};
+			return Json(checklistItems);
 		}
 
-		// GET: Checklist items page and return response to index.cshtml
-		public PartialViewResult Index()
+		[HttpGet("{id}")]
+		public ActionResult<ChecklistItem> GetById(Guid id)
 		{
-			return PartialView(GetChecklistItemViewModel());
-		}
-
-		// GET: _ChecklistItemList partial and return it to _ChecklistItemList.cshtml
-		public PartialViewResult _ChecklistItemList()
-		{
-			return PartialView(GetChecklistItemViewModel());
-		}
-
-		public ViewResult Report()
-		{
-			return View("Report", GetChecklistItemViewModel());
-		}
-
-		//GET: ChecklistItems/Edit/:id
-		public PartialViewResult Edit(Guid id)
-		{
-			var checklistItem = _context.ChecklistItems.SingleOrDefault(c => c.Id == id);
+			var checklistItem = _context.ChecklistItems
+				.Include(ci => ci.ChecklistItemTags)
+					.ThenInclude(cit => cit.Tag)
+				.Include(ci => ci.CannedResponses)
+				.Include(ci => ci.Measurements)
+				.SingleOrDefault(c => c.Id == id);
 
 			if (checklistItem == null)
 			{
-				return PartialView("Toasts/_Toast", ToastService.ResourceNotFound(ResourceName));
+				return NotFound();
 			}
 			else
 			{
 				checklistItem.Measurements = checklistItem.Measurements.OrderBy(m => m.Label).ToList();
 				checklistItem.CannedResponses = checklistItem.CannedResponses.OrderBy(c => c.Response).ToList();
-				var tags = _context.Tags.OrderBy(t => t.Name).ToList();
-				var selectedTagIds = checklistItem.ChecklistItemTags.Select(joinItem => joinItem.TagId);
-				var viewModel = new EditChecklistItemViewModel
-				{
-					ChecklistItem = checklistItem,
-					Tags = tags,
-					SelectedTagIds = selectedTagIds
-				};
-				return PartialView("_EditChecklistItem", viewModel);
+
+				return Json(checklistItem);
 			}
 		}
 
-		[HttpPost] //TODO: Move Tags parameter into viewModel??
-		public ActionResult Create(AddChecklistItemViewModel checklistItem, IList<Guid> tags)
+		[HttpPost("")]
+		public ActionResult<ChecklistItem> Create([FromBody]AddChecklistItemViewModel request)
 		{
-			ChecklistItem newItem = new ChecklistItem
+			var checklistItem = new ChecklistItem()
 			{
-				Name = checklistItem.Name,
-				ChecklistItemTags = tags.Select(tagId =>
-				{
-					var tag = _context.Tags.Find(tagId);
-					// FIXME DJC EF Many2Many - This wont work
-					return new ChecklistItemTag
-					{
-						Tag = tag,
-						TagId = tagId,
-						ChecklistItem = null,
-						ChecklistItemId = new Guid()
-					};
-				}).ToList(),
+				Name = request.Name,
 				CannedResponses = new List<CannedResponse>(),
 				Measurements = new List<Measurement>()
 			};
-
-
-			_context.ChecklistItems.Add(newItem);
-
-			try
+			checklistItem.ChecklistItemTags = request.TagIds.Select(tagId =>
 			{
-				_context.SaveChanges();
-			}
-			catch (Exception dbEx)
-			{
-				ExceptionHandlerService.HandleException(dbEx);
-			}
+				var tag = _context.Tags.Find(tagId);
+				return new ChecklistItemTag
+				{
+					Tag = tag,
+					TagId = tagId,
+					ChecklistItem = checklistItem,
+					ChecklistItemId = checklistItem.Id
+				};
+			}).ToList();
 
-			return RedirectToAction("_ChecklistItemList");
+			_context.ChecklistItems.Add(checklistItem);
+
+			_context.SaveChanges();
+
+			var createdUri = new Uri(HttpContext.Request.Path, UriKind.Relative);
+			return Created(createdUri, checklistItem);
 		}
 
-		[HttpPost]
-		public ActionResult Update(Guid id, EditChecklistItemViewModel vm)
+		[HttpPut("{id}")]
+		public ActionResult<ChecklistItem> Update(Guid id, [FromBody]EditChecklistItemViewModel vm)
 		{
 			var checklistItemInDb = _context.ChecklistItems.SingleOrDefault(c => c.Id == id);
 			if(checklistItemInDb == null)
 			{
-				return PartialView("Toasts/_Toast", ToastService.ResourceNotFound(ResourceName));
+				return NotFound();
 			}
-			else
+
+			// Duplicating database entries bug - MUST BE DONE BEFORE PROP CHANGES 
+			// http://stackoverflow.com/a/22389505/2831961
+			foreach (var measurement in checklistItemInDb.Measurements)
 			{
-				// Duplicating database entries bug - MUST BE DONE BEFORE PROP CHANGES 
-				// http://stackoverflow.com/a/22389505/2831961
-				foreach (var measurement in checklistItemInDb.Measurements)
-				{
-					_context.Measurements.Attach(measurement);
-				}
+				_context.Measurements.Attach(measurement);
+			}
 
-				foreach (var cannedResponse in checklistItemInDb.CannedResponses)
-				{
-					_context.CannedResponses.Attach(cannedResponse);
-				}
+			foreach (var cannedResponse in checklistItemInDb.CannedResponses)
+			{
+				_context.CannedResponses.Attach(cannedResponse);
+			}
 
-				foreach (var tag in checklistItemInDb.ChecklistItemTags.Select(joinItem => joinItem.Tag))
+			var tags = checklistItemInDb.ChecklistItemTags?.Select(joinItem => joinItem.Tag);
+			if (tags != null)
+			{
+				foreach (var tag in tags)
 				{
 					_context.Tags.Attach(tag);
 				}
-
-				foreach (var measurementInVm in vm.ChecklistItem.Measurements)
-				{
-					var measurementInDb = checklistItemInDb.Measurements.SingleOrDefault(cm => cm.Id == measurementInVm.Id);
-					if (measurementInDb != null)
-					{
-						measurementInDb.Label = measurementInVm.Label;
-						measurementInDb.Unit = measurementInVm.Unit;
-						measurementInDb.MinValue = measurementInVm.MinValue;
-						measurementInDb.MaxValue = measurementInVm.MaxValue;
-						measurementInDb.StepSize = measurementInVm.StepSize;
-					}
-				}
-
-				foreach (var cannedResponseInVm in vm.ChecklistItem.CannedResponses)
-				{
-					var cannedResponseInDb = checklistItemInDb.CannedResponses.SingleOrDefault(cr => cr.Id == cannedResponseInVm.Id);
-					if (cannedResponseInDb != null)
-					{
-						cannedResponseInDb.Response = cannedResponseInVm.Response;
-						cannedResponseInDb.LevelsOfConcern = cannedResponseInVm.LevelsOfConcern;
-						cannedResponseInDb.Url = cannedResponseInVm.Url;
-						cannedResponseInDb.Description = cannedResponseInVm.Description;
-					}
-				}
-
-				checklistItemInDb.Name = vm.ChecklistItem.Name;
-				// FIXME DJC EF Many2Many - Uncertain this will work
-				checklistItemInDb.ChecklistItemTags = _context.Tags
-					.Where(t => vm.SelectedTagIds.Contains(t.Id))
-					.Select(t => new ChecklistItemTag
-					{
-						ChecklistItem = checklistItemInDb,
-						ChecklistItemId = checklistItemInDb.Id,
-						Tag = t,
-						TagId = t.Id
-					})
-					.ToList();
-
-				try
-				{
-					_context.SaveChanges();
-				}
-				catch (Exception dbEx)
-				{
-					ExceptionHandlerService.HandleException(dbEx);
-				}
-
-				return RedirectToAction("Edit", new { id = checklistItemInDb.Id });
 			}
+
+			foreach (var measurementInVm in vm.ChecklistItem.Measurements)
+			{
+				var measurementInDb = checklistItemInDb.Measurements.SingleOrDefault(cm => cm.Id == measurementInVm.Id);
+				if (measurementInDb != null)
+				{
+					measurementInDb.Label = measurementInVm.Label;
+					measurementInDb.Unit = measurementInVm.Unit;
+					measurementInDb.MinValue = measurementInVm.MinValue;
+					measurementInDb.MaxValue = measurementInVm.MaxValue;
+					measurementInDb.StepSize = measurementInVm.StepSize;
+				}
+			}
+
+			foreach (var cannedResponseInVm in vm.ChecklistItem.CannedResponses)
+			{
+				var cannedResponseInDb = checklistItemInDb.CannedResponses.SingleOrDefault(cr => cr.Id == cannedResponseInVm.Id);
+				if (cannedResponseInDb != null)
+				{
+					cannedResponseInDb.Response = cannedResponseInVm.Response;
+					cannedResponseInDb.LevelsOfConcern = cannedResponseInVm.LevelsOfConcern;
+					cannedResponseInDb.Url = cannedResponseInVm.Url;
+					cannedResponseInDb.Description = cannedResponseInVm.Description;
+				}
+			}
+
+			checklistItemInDb.Name = vm.ChecklistItem.Name;
+			// FIXME DJC EF Many2Many - Uncertain this will work. May need to attach ChecklistItemTags since things may be getting duplicated, or not removed when not reassigned
+			checklistItemInDb.ChecklistItemTags = _context.Tags
+				.Where(t => vm.SelectedTagIds.Contains(t.Id))
+				.Select(t => new ChecklistItemTag
+				{
+					ChecklistItem = checklistItemInDb,
+					ChecklistItemId = checklistItemInDb.Id,
+					Tag = t,
+					TagId = t.Id
+				})
+				.ToList();
+
+			_context.SaveChanges();
+
+			return NoContent();
 		}
 
-		// POST: ChecklistItems/Delete/5
-		[HttpPost]
-		public ActionResult Delete(Guid id)
+		[HttpDelete("{id}")]
+		public NoContentResult Delete(Guid id)
 		{
-			try
+			var checklistItemInDb = _context.ChecklistItems.Find(id);
+
+			if (checklistItemInDb != null)
 			{
-				var checklistItemInDb = _context.ChecklistItems.Find(id);
-
-				if (checklistItemInDb == null)
-				{
-					return PartialView("Toasts/_Toast", ToastService.ResourceNotFound(ResourceName));
-				}
-
 				// TODO: DJC Should cascade delete work from checklistitem to measurement and canned response
 				foreach (var measurement in _context.Measurements)
 				{
@@ -222,76 +182,58 @@ namespace DigitalInspectionNetCore21.Controllers
 				_context.ChecklistItems.Remove(checklistItemInDb);
 				_context.SaveChanges();
 			}
-			catch (Exception dbEx)
-			{
-				ExceptionHandlerService.HandleException(dbEx);
-				return PartialView("Toasts/_Toast", ToastService.UnknownErrorOccurred(dbEx));
-			}
 
-			return RedirectToAction("_ChecklistItemList");
+			return NoContent();
 		}
 
-		[HttpPost]
+		[HttpPost("{id}/Measurements")]
 		public ActionResult AddMeasurement(Guid id)
 		{
 			var checklistItemInDb = _context.ChecklistItems.Find(id);
 
 			if (checklistItemInDb == null)
 			{
-				return PartialView("Toasts/_Toast", ToastService.ResourceNotFound(ResourceName));
+				return NotFound();
 			}
 
-			checklistItemInDb.Measurements.Add(new Measurement());
+			var measurement = new Measurement();
+			checklistItemInDb.Measurements.Add(measurement);
 
-			try
-			{
-				_context.SaveChanges();
-			}
-			catch (Exception dbEx)
-			{
-				ExceptionHandlerService.HandleException(dbEx);
-			}
+			_context.SaveChanges();
 
-			return RedirectToAction("Edit", new { id = checklistItemInDb.Id });
+			return Ok(measurement);
 		}
 
-		[HttpPost]
-		public ActionResult DeleteMeasurement(Guid id)
+		[HttpDelete("{checklistItemId}/Measurements/{measurementId}")]
+		public ActionResult DeleteMeasurement(Guid checklistItemId, Guid measurementId)
 		{
-			var checklistItemInDb = _context.ChecklistItems.FirstOrDefault(ci => ci.Measurements.Any(m => m.Id == id));
+			var checklistItemInDb = _context.ChecklistItems
+				.Include(ci => ci.Measurements)
+				.Single(ci => ci.Id == checklistItemId);
 
-			if (checklistItemInDb == null)
+			if (checklistItemInDb != null)
 			{
-				return PartialView("Toasts/_Toast", ToastService.ResourceNotFound(ResourceName));
-			}
+				var measurementToRemove = checklistItemInDb.Measurements.Single(m => m.Id == measurementId);
+				checklistItemInDb.Measurements.Remove(measurementToRemove);
 
-			var measurementToRemove = checklistItemInDb.Measurements.Single(m => m.Id == id);
-			checklistItemInDb.Measurements.Remove(measurementToRemove);
-
-			// Uncomment this line if it is desired to remove all notions of this measurement from the APP.
-			// Leaving this commented out only removes its association from a checklist for new items, but allows
-			// old inspections to remain historically accurate. 
-			//_context.Measurements.Remove(measurementToRemove);
-			try
-			{
+				// Uncomment this line if it is desired to remove all notions of this measurement from the APP.
+				// Leaving this commented out only removes its association from a checklist for new items, but allows
+				// old inspections to remain historically accurate. 
+				//_context.Measurements.Remove(measurementToRemove);
 				_context.SaveChanges();
 			}
-			catch (Exception dbEx)
-			{
-				ExceptionHandlerService.HandleException(dbEx);
-			}
 
-			return RedirectToAction("Edit", new { id = checklistItemInDb.Id });
+			return NoContent();
 		}
 
-		[HttpPost]
+		[HttpPost("{id}/CannedResponses")]
 		public ActionResult AddCannedResponse(Guid id)
 		{
 			var checklistItemInDb = _context.ChecklistItems.Find(id);
 
 			if (checklistItemInDb == null)
 			{
-				return PartialView("Toasts/_Toast", ToastService.ResourceNotFound(ResourceName));
+				return NotFound();
 			}
 
 			var cannedResponse = new CannedResponse()
@@ -300,45 +242,31 @@ namespace DigitalInspectionNetCore21.Controllers
 			};
 			checklistItemInDb.CannedResponses.Add(cannedResponse);
 
-			try
-			{
-				_context.SaveChanges();
-			}
-			catch (Exception dbEx)
-			{
-				ExceptionHandlerService.HandleException(dbEx);
-			}
+			_context.SaveChanges();
 
-			return RedirectToAction("Edit", new { id = checklistItemInDb.Id });
+			return Ok(cannedResponse);
 		}
 
-		[HttpPost]
-		public ActionResult DeleteCannedResponse(Guid id)
+		[HttpDelete("{checklistItemId}/CannedResponses/{cannedResponseId}")]
+		public ActionResult DeleteCannedResponse(Guid checklistItemId, Guid cannedResponseId)
 		{
-			var checklistItemInDb = _context.ChecklistItems.FirstOrDefault(ci => ci.CannedResponses.Any(m => m.Id == id));
+			var checklistItemInDb = _context.ChecklistItems
+				.Include(ci => ci.CannedResponses)
+				.Single(ci => ci.Id == checklistItemId);
 
-			if (checklistItemInDb == null)
+			if (checklistItemInDb != null)
 			{
-				return PartialView("Toasts/_Toast", ToastService.ResourceNotFound(ResourceName));
-			}
+				var cannedResponseToRemove = checklistItemInDb.CannedResponses.Single(m => m.Id == cannedResponseId);
+				checklistItemInDb.CannedResponses.Remove(cannedResponseToRemove);
 
-			var cannedResponseToRemove = checklistItemInDb.CannedResponses.Single(m => m.Id == id);
-			checklistItemInDb.CannedResponses.Remove(cannedResponseToRemove);
-
-			// Uncomment this line if it is desired to remove all notions of this canned response from the APP.
-			// Leaving this commented out only removes its association from a checklist for new items, but allows
-			// old inspections to remain historically accurate. 
-			//_context.CannedResponses.Remove(cannedResponseToRemove);
-			try
-			{
+				// Uncomment this line if it is desired to remove all notions of this canned response from the APP.
+				// Leaving this commented out only removes its association from a checklist for new items, but allows
+				// old inspections to remain historically accurate. 
+				//_context.CannedResponses.Remove(cannedResponseToRemove);
 				_context.SaveChanges();
 			}
-			catch (Exception dbEx)
-			{
-				ExceptionHandlerService.HandleException(dbEx);
-			}
 
-			return RedirectToAction("Edit", new { id = checklistItemInDb.Id });
+			return NoContent();
 		}
 	}
 }

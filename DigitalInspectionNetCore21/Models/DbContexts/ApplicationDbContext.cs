@@ -35,22 +35,86 @@ namespace DigitalInspectionNetCore21.Models.DbContexts
 		{
 			base.OnModelCreating(modelBuilder);
 
+			ConfigureOneToManyRelationships(modelBuilder);
 			ConfigureManyToManyRelationships(modelBuilder);
-
-			modelBuilder
-				.Entity<InspectionItem>()
-				.Property(ii => ii.Condition)
-				.HasConversion<int>();
-
-			modelBuilder
-				.Entity<CannedResponse>()
-				.Property(ii => ii.LevelsOfConcern)
-				.HasConversion(
-					// Going into the DB
-					v => ConvertToString(v),
-					// Coming out of the DB
-					v => ConvertToRecommendServiceSeverities(v));
+			ConfigureTypeConversions(modelBuilder);
 		}
+
+		#region One to Many
+
+		// https://www.learnentityframeworkcore.com/configuration/one-to-many-relationship-configuration
+		private void ConfigureOneToManyRelationships(ModelBuilder modelBuilder)
+		{
+			InspectionItemChecklistItemRelationship(modelBuilder);
+			InspectionItemInspectionRelationship(modelBuilder);
+			InspectionItemInspectionImageRelationship(modelBuilder);
+			InspectionItemInspectionMeasurementRelationship(modelBuilder);
+			MeasurementInspectionMeasurementRelationship(modelBuilder);
+		}
+
+		private void InspectionItemChecklistItemRelationship(ModelBuilder modelBuilder)
+		{
+		    modelBuilder.Entity<InspectionItem>()
+			    .HasOne(ii => ii.ChecklistItem)
+			    .WithMany(ci => ci.InspectionItems);
+
+		    // Rename the shadow property EF Core will generate to match original EF 6 convention
+		    modelBuilder.Entity<InspectionItem>()
+			    .Property<Guid>("ChecklistItemId")
+			    .HasColumnName("ChecklistItem_Id");
+		}
+
+		private void InspectionItemInspectionRelationship(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<InspectionItem>()
+			    .HasOne(ii => ii.Inspection)
+			    .WithMany(i => i.InspectionItems);
+
+		    // Rename the shadow property EF Core will generate to match original EF 6 convention
+			modelBuilder.Entity<InspectionItem>()
+			    .Property<Guid>("InspectionId")
+			    .HasColumnName("Inspection_Id");
+		}
+
+		private void InspectionItemInspectionImageRelationship(ModelBuilder modelBuilder)
+		{
+		    modelBuilder.Entity<InspectionImage>()
+			    .HasOne(ii => ii.InspectionItem)
+			    .WithMany(ii => ii.InspectionImages);
+
+		    // Rename the shadow property EF Core will generate to match original EF 6 convention
+		    modelBuilder.Entity<InspectionImage>()
+			    .Property<Guid>("InspectionItemId")
+			    .HasColumnName("InspectionItem_Id");
+		}
+
+	    private void InspectionItemInspectionMeasurementRelationship(ModelBuilder modelBuilder)
+	    {
+		    modelBuilder.Entity<InspectionMeasurement>()
+			    .HasOne(ii => ii.InspectionItem)
+			    .WithMany(ii => ii.InspectionMeasurements);
+
+		    // Rename the shadow property EF Core will generate to match original EF 6 convention
+		    modelBuilder.Entity<InspectionMeasurement>()
+			    .Property<Guid>("InspectionItemId")
+			    .HasColumnName("InspectionItem_Id");
+	    }
+
+	    private void MeasurementInspectionMeasurementRelationship(ModelBuilder modelBuilder)
+	    {
+		    modelBuilder.Entity<InspectionMeasurement>()
+			    .HasOne(im => im.Measurement)
+			    .WithMany(m => m.InspectionMeasurements);
+
+		    // Rename the shadow property EF Core will generate to match original EF 6 convention
+		    modelBuilder.Entity<InspectionMeasurement>()
+			    .Property<Guid>("MeasurementId")
+			    .HasColumnName("Measurement_Id");
+	    }
+
+		#endregion
+
+		#region Many-To-Many
 
 		/**
 		 * References
@@ -137,7 +201,7 @@ namespace DigitalInspectionNetCore21.Models.DbContexts
 			    .HasKey(joinItem => new { joinItem.InspectionItemId, joinItem.CannedResponseId });
 
 		    modelBuilder.Entity<InspectionItemCannedResponse>()
-			    .HasOne(joinItem => joinItem.InsepctionItem)
+			    .HasOne(joinItem => joinItem.InspectionItem)
 			    .WithMany(ii => ii.InspectionItemCannedResponses)
 			    .HasForeignKey(joinItem => joinItem.InspectionItemId);
 
@@ -145,6 +209,27 @@ namespace DigitalInspectionNetCore21.Models.DbContexts
 			    .HasOne(joinItem => joinItem.CannedResponse)
 			    .WithMany(cr => cr.InspectionItemCannedResponses)
 			    .HasForeignKey(joinItem => joinItem.CannedResponseId);
+	    }
+
+		#endregion
+
+		#region Type Conversions
+
+	    private void ConfigureTypeConversions(ModelBuilder modelBuilder)
+	    {
+		    modelBuilder
+			    .Entity<InspectionItem>()
+			    .Property(ii => ii.Condition)
+			    .HasConversion<int>();
+
+		    modelBuilder
+			    .Entity<CannedResponse>()
+			    .Property(ii => ii.LevelsOfConcern)
+			    .HasConversion(
+				    // Going into the DB
+				    v => ConvertToString(v),
+				    // Coming out of the DB
+				    v => ConvertToRecommendServiceSeverities(v));
 	    }
 
 		private string ConvertToString(IList<RecommendedServiceSeverity> levelsOfConcern)
@@ -166,5 +251,7 @@ namespace DigitalInspectionNetCore21.Models.DbContexts
 					.ToList();
 			}
 		}
+
+		#endregion
 	}
 }

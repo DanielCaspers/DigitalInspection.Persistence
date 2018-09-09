@@ -34,16 +34,19 @@ namespace DigitalInspectionNetCore21.Models.Inspections.Reports
 			CannedResponses = ii.InspectionItemCannedResponses
 				.Select(joinItem => joinItem.CannedResponse)
 				.Select(cr => new CannedResponseReportItem(cr.Response, cr.Description, cr.Url))
-				.OrderBy(cri => cri.Response);
+				.OrderBy(cri => cri.Response)
+				.ToList();
 
 			Measurements = ii.InspectionMeasurements
 				.OrderBy(im => im.Measurement.Label)
-				.Select(im => new MeasurementReportItem(im.Value, im.Measurement.Label, im.Measurement.Unit));
+				.Select(im => new MeasurementReportItem(im.Value, im.Measurement.Label, im.Measurement.Unit))
+				.ToList();
 
 			Images = ii.InspectionImages
 				.Where(image => image.IsVisibleToCustomer)
 				.OrderBy(image => image.CreatedDate)
-				.Select(image => new ImageReportItem(baseUrl, ii, image));
+				.Select(image => new ImageReportItem(baseUrl, ii, image))
+				.ToList();
 		}
 	}
 }
