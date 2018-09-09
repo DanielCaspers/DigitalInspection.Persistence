@@ -17,9 +17,8 @@ namespace DigitalInspectionNetCore21.Models.Inspections
 		[DisplayName("Checklist name *")]
 		public string Name { get; set; }
 
-		//TODO DJC Checklist Image -Re - enable if required
 		//[Required]
-		//public Image Image { get; set; }
+		public Image Image { get; set; }
 
 		public virtual IList<ChecklistInspection> ChecklistInspections { get; set; } = new List<ChecklistInspection>();
 	}

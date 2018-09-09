@@ -1,8 +1,10 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DigitalInspectionNetCore21.Models.Inspections.Joins
 {
-    public class ChecklistItemTag
+	[Table("ChecklistItemTags")]
+	public class ChecklistItemTag
     {
 	    public Guid ChecklistItemId { get; set; }
 

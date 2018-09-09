@@ -32,8 +32,7 @@ namespace DigitalInspectionNetCore21.Controllers
 				Checklists = checklists.OrderBy(c => c.Name).ToList(),
 				AddChecklistVM = new AddChecklistViewModel
 				{
-					Name = "",
-					Picture = null
+					Name = ""
 				}
 			};
 		}
@@ -114,14 +113,6 @@ namespace DigitalInspectionNetCore21.Controllers
 					ChecklistItemId = ci.Id
 				}).ToList();
 
-				// Only update the picture if a new one was uploaded
-				if(picture != null && picture.Length > 0)
-				{
-					//TODO DJC Checklist Image -Re - enable if required
-					//ImageService.DeleteImage(checklistInDb.Image);
-					//checklistInDb.Image = ImageService.SaveImage(picture, IMAGE_SUBDIRECTORY, id.ToString());
-				}
-
 				_context.SaveChanges();
 				return RedirectToAction("Edit", new { id = checklistInDb.Id });
 			}
@@ -133,13 +124,11 @@ namespace DigitalInspectionNetCore21.Controllers
 			Checklist newList = new Checklist
 			{
 				Name = list.Name,
-				Id = Guid.NewGuid()
+				Id = Guid.NewGuid(),
+				Image = new Image()
 			};
 
-			//TODO DJC Checklist Image -Re - enable if required
-            //newList.Image = ImageService.SaveImage(list.Picture, IMAGE_SUBDIRECTORY, newList.Id.ToString());
-
-				_context.Checklists.Add(newList);
+			_context.Checklists.Add(newList);
 			_context.SaveChanges();
 
 			return RedirectToAction("Index");
@@ -158,10 +147,7 @@ namespace DigitalInspectionNetCore21.Controllers
 					return PartialView("Toasts/_Toast", ToastService.ResourceNotFound(ResourceName));
 				}
 
-				//TODO DJC Checklist Image -Re - enable if required
-                //ImageService.DeleteImage(checklist.Image);
-
-					_context.Checklists.Remove(checklist);
+				_context.Checklists.Remove(checklist);
 				_context.SaveChanges();
 			}
 			catch (Exception e)

@@ -1,8 +1,10 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DigitalInspectionNetCore21.Models.Inspections.Joins
 {
-    public class InspectionItemCannedResponse
+	[Table("InspectionItemCannedResponses")]
+	public class InspectionItemCannedResponse
     {
 		public Guid InspectionItemId { get; set; }
 
