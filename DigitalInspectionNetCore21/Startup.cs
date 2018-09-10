@@ -33,7 +33,7 @@ namespace DigitalInspectionNetCore21
 
 			//// other service configurations go here
 			services.AddDbContextPool<ApplicationDbContext>(
-				options => options.UseMySql(Configuration["DB:Password"],
+				options => options.UseMySql(Configuration["ConnectionStrings:DefaultConnection"],
 
 					mysqlOptions =>
 					{
