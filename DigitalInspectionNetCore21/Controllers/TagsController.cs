@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Models.Inspections;
+using DigitalInspectionNetCore21.Services.Core.Interfaces;
 using DigitalInspectionNetCore21.ViewModels.Tags;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace DigitalInspectionNetCore21.Controllers
 {
@@ -13,17 +13,17 @@ namespace DigitalInspectionNetCore21.Controllers
 	[Route("[controller]")]
 	public class TagsController : BaseController, IRepositoryController<Tag, AddTagViewModel, AddTagViewModel>
 	{
-		public TagsController(ApplicationDbContext db) : base(db)
+		private readonly ITagRepository _tagRepository;
+
+		public TagsController(ApplicationDbContext db, ITagRepository tagRepository) : base(db)
 		{
-			ResourceName = "Tag";
+			_tagRepository = tagRepository;
 		}
 
 		[HttpGet("")]
 		public ActionResult<IEnumerable<Tag>> GetAll()
 		{
-			var tags = _context.Tags
-				.OrderBy(t => t.Name)
-				.ToList();
+			var tags = _tagRepository.GetAll().ToList();
 
 			return Json(tags);
 		}
@@ -31,16 +31,14 @@ namespace DigitalInspectionNetCore21.Controllers
 		[HttpGet("{id}")]
 		public ActionResult<Tag> GetById(Guid id)
 		{
-			var tag = _context.Tags.SingleOrDefault(t => t.Id == id);
+			var tag = _context.Tags.Find(id);
 
 			if (tag == null)
 			{
 				return NotFound();
 			}
-			else
-			{
-				return Json(tag);
-			}
+
+			return Json(tag);
 		}
 
 		[HttpPost("")]
@@ -68,16 +66,14 @@ namespace DigitalInspectionNetCore21.Controllers
 			{
 				return NotFound();
 			}
-			else
-			{
-				tagInDb.Name = tag.Name;
-				tagInDb.IsVisibleToCustomer = tag.IsVisibleToCustomer;
-				tagInDb.IsVisibleToEmployee = tag.IsVisibleToEmployee;
 
-				_context.SaveChanges();
+			tagInDb.Name = tag.Name;
+			tagInDb.IsVisibleToCustomer = tag.IsVisibleToCustomer;
+			tagInDb.IsVisibleToEmployee = tag.IsVisibleToEmployee;
 
-				return NoContent();
-			}
+			_context.SaveChanges();
+
+			return NoContent();
 		}
 
 		[HttpDelete("{id}")]

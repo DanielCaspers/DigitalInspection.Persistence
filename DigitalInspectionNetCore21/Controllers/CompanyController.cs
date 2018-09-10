@@ -8,10 +8,7 @@ namespace DigitalInspectionNetCore21.Controllers
 {
 	public class CompanyController : BaseController
 	{
-		public CompanyController(ApplicationDbContext db) : base(db)
-		{
-			ResourceName = "Company";
-		}
+		public CompanyController(ApplicationDbContext db) : base(db) { }
 
 		[HttpPost]
 		[AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]

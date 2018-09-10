@@ -54,10 +54,7 @@ namespace DigitalInspectionNetCore21.Controllers
 
 		#endregion
 
-		public WorkOrdersController(ApplicationDbContext db) : base(db)
-		{
-			ResourceName = "Work order";
-		}
+		public WorkOrdersController(ApplicationDbContext db) : base(db)	{ }
 
 		#region Partial View Actions
 

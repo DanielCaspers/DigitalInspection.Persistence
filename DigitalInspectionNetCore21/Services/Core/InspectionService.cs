@@ -198,20 +198,35 @@ namespace DigitalInspectionNetCore21.Services.Core
 			string workOrderId,
 			Checklist checklist)
 		{
-			var inspection = ctx.Inspections.SingleOrDefault(i => i.WorkOrderId == workOrderId);
+			var inspection = ctx.Inspections
+				.Include(i => i.ChecklistItemInspections)
+					.ThenInclude(i => i.ChecklistItem)
+				.Include(i => i.InspectionItems)
+					.ThenInclude(ii => ii.InspectionImages)
+				.Include(i => i.InspectionItems)
+					.ThenInclude(ii => ii.InspectionMeasurements)
+				.Include(i => i.InspectionItems)
+					.ThenInclude(ii => ii.InspectionItemCannedResponses)
+				.Include(i => i.ChecklistInspections)
+					.ThenInclude(ci => ci.Checklist)
+				.SingleOrDefault(i => i.WorkOrderId == workOrderId);
+
 			if (inspection == null)
 			{
 				inspection = new Inspection
 				{
 					WorkOrderId = workOrderId,
-					// FXIME DJC EF Many2Many - This relationship no longer works
-					ChecklistInspections = new List<ChecklistInspection> {
-						new ChecklistInspection {
+				};
+				// FXIME DJC EF Many2Many - This relationship no longer works
+				inspection.ChecklistInspections = new List<ChecklistInspection>
+				{
+					new ChecklistInspection
+					{
 						Checklist = checklist,
 						ChecklistId = checklist.Id,
 						Inspection = inspection,
 						InspectionId = new Guid()
-					}} 
+					}
 				};
 
 				ctx.Inspections.Add(inspection);

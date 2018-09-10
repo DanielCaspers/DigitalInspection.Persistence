@@ -8,10 +8,7 @@ namespace DigitalInspectionNetCore21.Controllers
 {
 	public class StoreInfoController : BaseController
 	{
-		public StoreInfoController(ApplicationDbContext db) : base(db)
-		{
-			ResourceName = "StoreInfo";
-		}
+		public StoreInfoController(ApplicationDbContext db) : base(db) { }
 
 		[AllowAnonymous]
 		public JsonResult Json(string companyNumber)

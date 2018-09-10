@@ -8,8 +8,6 @@ namespace DigitalInspectionNetCore21.Controllers
 {
 	public abstract class BaseController : Controller
 	{
-		protected string ResourceName;
-
 		protected ApplicationDbContext _context;
 
 		protected BaseController(ApplicationDbContext db)

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Models.Inspections;
 using DigitalInspectionNetCore21.Models.Inspections.Joins;
+using DigitalInspectionNetCore21.Services.Core.Interfaces;
 using DigitalInspectionNetCore21.ViewModels.ChecklistItems;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,17 +15,20 @@ namespace DigitalInspectionNetCore21.Controllers
 	[Route("[controller]")]
 	public class ChecklistItemsController : BaseController, IRepositoryController<ChecklistItem, AddChecklistItemViewModel, EditChecklistItemViewModel>
 	{
-		public ChecklistItemsController(ApplicationDbContext db) : base(db)
+		private readonly IChecklistItemRepository _checklistItemRepository;
+		private readonly ITagRepository _tagRepository;
+
+		public ChecklistItemsController(ApplicationDbContext db, IChecklistItemRepository checklistItemRepository, ITagRepository tagRepository) : base(db)
 		{
-			ResourceName = "Checklist item";
+			_checklistItemRepository = checklistItemRepository;
+			_tagRepository = tagRepository;
+
 		}
 
 		[HttpGet("")]
 		public ActionResult<IEnumerable<ChecklistItem>> GetAll()
 		{
-			var checklistItems = _context.ChecklistItems
-				.OrderBy(ci => ci.Name)
-				.ToList();
+			var checklistItems = _checklistItemRepository.GetAll().ToList();
 
 			return Json(checklistItems);
 		}
@@ -32,12 +36,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		[HttpGet("{id}")]
 		public ActionResult<ChecklistItem> GetById(Guid id)
 		{
-			var checklistItem = _context.ChecklistItems
-				.Include(ci => ci.ChecklistItemTags)
-					.ThenInclude(cit => cit.Tag)
-				.Include(ci => ci.CannedResponses)
-				.Include(ci => ci.Measurements)
-				.SingleOrDefault(c => c.Id == id);
+			var checklistItem = _checklistItemRepository.GetById(id);
 
 			if (checklistItem == null)
 			{
@@ -45,10 +44,31 @@ namespace DigitalInspectionNetCore21.Controllers
 			}
 			else
 			{
-				checklistItem.Measurements = checklistItem.Measurements.OrderBy(m => m.Label).ToList();
-				checklistItem.CannedResponses = checklistItem.CannedResponses.OrderBy(c => c.Response).ToList();
-
 				return Json(checklistItem);
+			}
+		}
+
+		[Obsolete("Use only for Legacy .NET Framework App")]
+		[HttpGet("{id}/Edit")]
+		public ActionResult<EditChecklistItemViewModel> EditById(Guid id)
+		{
+			var checklistItem = _checklistItemRepository.GetById(id);
+
+			if (checklistItem == null)
+			{
+				return NotFound();
+			}
+			else
+			{
+				var tags = _tagRepository.GetAll().ToList();
+				var selectedTagIds = checklistItem.ChecklistItemTags.Select(cit => cit.TagId);
+				var viewModel = new EditChecklistItemViewModel
+				{
+					ChecklistItem = checklistItem,
+					Tags = tags,
+					SelectedTagIds = selectedTagIds
+				};
+				return Json(viewModel);
 			}
 		}
 
@@ -57,9 +77,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		{
 			var checklistItem = new ChecklistItem()
 			{
-				Name = request.Name,
-				CannedResponses = new List<CannedResponse>(),
-				Measurements = new List<Measurement>()
+				Name = request.Name
 			};
 			checklistItem.ChecklistItemTags = request.TagIds.Select(tagId =>
 			{
@@ -74,7 +92,6 @@ namespace DigitalInspectionNetCore21.Controllers
 			}).ToList();
 
 			_context.ChecklistItems.Add(checklistItem);
-
 			_context.SaveChanges();
 
 			var createdUri = new Uri(HttpContext.Request.Path, UriKind.Relative);
@@ -84,7 +101,8 @@ namespace DigitalInspectionNetCore21.Controllers
 		[HttpPut("{id}")]
 		public ActionResult<ChecklistItem> Update(Guid id, [FromBody]EditChecklistItemViewModel vm)
 		{
-			var checklistItemInDb = _context.ChecklistItems.SingleOrDefault(c => c.Id == id);
+			// TODO Determine if Find() will help with getting rid of context attach.
+			var checklistItemInDb = _context.ChecklistItems.SingleOrDefault(ci => ci.Id == id);
 			if(checklistItemInDb == null)
 			{
 				return NotFound();
@@ -182,22 +200,21 @@ namespace DigitalInspectionNetCore21.Controllers
 				_context.ChecklistItems.Remove(checklistItemInDb);
 				_context.SaveChanges();
 			}
-
 			return NoContent();
 		}
 
 		[HttpPost("{id}/Measurements")]
 		public ActionResult AddMeasurement(Guid id)
 		{
-			var checklistItemInDb = _context.ChecklistItems.Find(id);
+			var checklistItem = _context.ChecklistItems.Find(id);
 
-			if (checklistItemInDb == null)
+			if (checklistItem == null)
 			{
 				return NotFound();
 			}
 
 			var measurement = new Measurement();
-			checklistItemInDb.Measurements.Add(measurement);
+			checklistItem.Measurements.Add(measurement);
 
 			_context.SaveChanges();
 

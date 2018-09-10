@@ -9,9 +9,7 @@ namespace DigitalInspectionNetCore21.Controllers
 {
 	public class VehicleHistoryController : BaseController
 	{
-		public VehicleHistoryController(ApplicationDbContext db) : base(db)
-		{ 
-		}
+		public VehicleHistoryController(ApplicationDbContext db) : base(db) { }
 
 		[HttpPost]
 		[AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]

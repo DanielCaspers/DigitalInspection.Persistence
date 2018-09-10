@@ -1,5 +1,4 @@
-﻿using DigitalInspectionNetCore21.Services;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using DigitalInspectionNetCore21.Models.DbContexts;
@@ -15,10 +14,7 @@ namespace DigitalInspectionNetCore21.Controllers
 	[Route("[controller]")]
 	public class ChecklistsController : BaseController, IRepositoryController<Checklist, AddChecklistViewModel, EditChecklistViewModel>
 	{
-		public ChecklistsController(ApplicationDbContext db) : base(db)
-		{
-			ResourceName = "Checklist";
-		}
+		public ChecklistsController(ApplicationDbContext db) : base(db) { }
 
 		[HttpGet("")]
 		public ActionResult<IEnumerable<Checklist>> GetAll()
@@ -46,6 +42,30 @@ namespace DigitalInspectionNetCore21.Controllers
 			{
 				return Json(checklist);
 			}
+		}
+		[Obsolete("Use only for Legacy .NET Framework App")]
+		[HttpGet("{id}/Edit")]
+		public ActionResult<EditChecklistViewModel> EditById(Guid id)
+		{
+			var checklist = _context.Checklists
+				.Include(c => c.ChecklistChecklistItems)
+				.SingleOrDefault(c => c.Id == id);
+
+			if (checklist == null)
+			{
+				return NotFound();
+			}
+
+			IList<ChecklistItem> checklistItems = _context.ChecklistItems.OrderBy(c => c.Name).ToList();
+			IList<bool> isChecklistItemSelected = checklistItems.Select(ci => checklist.ChecklistChecklistItems.Any(cci => cci.ChecklistItemId == ci.Id)).ToList();
+
+			var viewModel = new EditChecklistViewModel
+			{
+				Checklist = checklist,
+				ChecklistItems = checklistItems,
+				IsChecklistItemSelected = isChecklistItemSelected
+			};
+			return Json(viewModel);
 		}
 
 		[HttpPost("")]

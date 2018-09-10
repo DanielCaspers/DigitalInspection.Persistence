@@ -10,9 +10,9 @@ using DigitalInspectionNetCore21.Models.Orders;
 using System.IO;
 using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Models.Inspections;
-using DigitalInspectionNetCore21.Models.Inspections.Joins;
 using DigitalInspectionNetCore21.Models.Inspections.Reports;
 using DigitalInspectionNetCore21.Services.Core;
+using DigitalInspectionNetCore21.Services.Core.Interfaces;
 using DigitalInspectionNetCore21.Services.Web;
 using DigitalInspectionNetCore21.ViewModels.Inspections;
 using DigitalInspectionNetCore21.ViewModels.TabContainers;
@@ -29,9 +29,11 @@ namespace DigitalInspectionNetCore21.Controllers
 		private static readonly string IMAGE_DIRECTORY = "Inspections";
 		private static readonly string _subresource = "Inspection Item";
 
-		public InspectionsController(ApplicationDbContext db) : base(db)
+		private readonly ITagRepository _tagRepository;
+
+		public InspectionsController(ApplicationDbContext db, ITagRepository tagRepository) : base(db)
 		{
-			ResourceName = "InspectionsController";
+			_tagRepository = tagRepository;
 		}
 
 		// [AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
@@ -99,12 +101,12 @@ namespace DigitalInspectionNetCore21.Controllers
 			var inspection = _context.Inspections.SingleOrDefault(i => i.WorkOrderId == workOrderId);
 			if (inspection == null)
 			{
-				return new EmptyResult();
+				return NoContent();
 			}
 
 			InspectionService.DeleteInspection(_context, inspection);
 
-			return new EmptyResult();
+			return NoContent();
 		}
 
 		[HttpPost]
@@ -112,7 +114,9 @@ namespace DigitalInspectionNetCore21.Controllers
 		public ActionResult Condition(Guid inspectionItemId, RecommendedServiceSeverity inspectionItemCondition)
 		{
 			// Save Condition
-			var inspectionItemInDb = _context.InspectionItems.SingleOrDefault(item => item.Id == inspectionItemId);
+			var inspectionItemInDb = _context.InspectionItems
+				.Include(ii => ii.InspectionItemCannedResponses)
+				.SingleOrDefault(item => item.Id == inspectionItemId);
 
 			if (inspectionItemInDb == null)
 			{
@@ -125,7 +129,10 @@ namespace DigitalInspectionNetCore21.Controllers
 			}
 
 			// Prepare updated multiselect list for client
-			var checklistItem = _context.ChecklistItems.Single(ci => ci.Id == inspectionItemInDb.ChecklistItem.Id);
+			var checklistItem = _context.ChecklistItems
+				.Include(ci => ci.CannedResponses)
+				.Single(ci => ci.Id == inspectionItemInDb.ChecklistItem.Id);
+
 			var filteredCRs = checklistItem.CannedResponses.Where(cr => cr.LevelsOfConcern.Contains(inspectionItemCondition));
 
 			// Options may be selected in the case where we haven't changed to a new condition
@@ -149,7 +156,9 @@ namespace DigitalInspectionNetCore21.Controllers
 		// [AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
 		public ActionResult CannedResponse(Guid inspectionItemId, InspectionDetailViewModel vm)
 		{
-			var inspectionItemInDb = _context.InspectionItems.Single(item => item.Id == inspectionItemId);
+			var inspectionItemInDb = _context.InspectionItems
+				.Include(ii => ii.InspectionItemCannedResponses)
+				.Single(item => item.Id == inspectionItemId);
 
 			IList<Guid> selectedCannedResponseIds = vm.Inspection.InspectionItems.Single(ii => ii.Id == inspectionItemId).SelectedCannedResponseIds;
 
@@ -226,7 +235,9 @@ namespace DigitalInspectionNetCore21.Controllers
 		// [AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
 		public ActionResult Measurements(AddMeasurementViewModel MeasurementsVM)
 		{
-			var inspectionItemInDb = _context.InspectionItems.SingleOrDefault(item => item.Id == MeasurementsVM.InspectionItem.Id);
+			var inspectionItemInDb = _context.InspectionItems
+				.Include(ii => ii.InspectionMeasurements)
+				.SingleOrDefault(item => item.Id == MeasurementsVM.InspectionItem.Id);
 
 			if (inspectionItemInDb == null)
 			{
@@ -319,7 +330,9 @@ namespace DigitalInspectionNetCore21.Controllers
 		public PartialViewResult GetViewInspectionPhotosDialog(Guid inspectionItemId, Guid checklistItemId, Guid checklistId, Guid? tagId, string workOrderId)
 		{
 			var checklistItem = _context.ChecklistItems.SingleOrDefault(ci => ci.Id == checklistItemId);
-			var inspectionItem = _context.InspectionItems.Single(item => item.Id == inspectionItemId);
+			var inspectionItem = _context.InspectionItems
+				.Include(ii => ii.InspectionImages)
+				.Single(item => item.Id == inspectionItemId);
 
 			IList<InspectionImage> images = inspectionItem.InspectionImages
 				.Select((image) =>
@@ -354,7 +367,7 @@ namespace DigitalInspectionNetCore21.Controllers
 			}
 			else if (checklist == null)
 			{
-				toast = ToastService.ResourceNotFound(ResourceName, ToastActionType.NavigateBack);
+				toast = ToastService.ResourceNotFound("Checklist", ToastActionType.NavigateBack);
 			}
 
 			// Sort all canned responses by response
@@ -409,10 +422,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		private ScrollableTabContainerViewModel GetScrollableTabContainerViewModel(Guid? tagId)
 		{
 			// Construct tabs based on current selection
-			var applicableTags = _context.Tags
-				.Where(t => t.IsVisibleToEmployee)
-				.OrderBy(t => t.Name)
-				.ToList();
+			var applicableTags = _tagRepository.GetAllEmployeeVisible().ToList();
 
 			IList<ScrollableTab> tabs = new List<ScrollableTab>
 			{
