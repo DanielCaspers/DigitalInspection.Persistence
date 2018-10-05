@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using AutoMapper;
 using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Models.Inspections;
 using DigitalInspectionNetCore21.Models.Inspections.Joins;
+using DigitalInspectionNetCore21.Models.Web.Inspections;
 using DigitalInspectionNetCore21.Services.Core.Interfaces;
 using DigitalInspectionNetCore21.ViewModels.ChecklistItems;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +15,7 @@ namespace DigitalInspectionNetCore21.Controllers
 {
 	//[AuthorizeRoles(Roles.Admin)]
 	[Route("[controller]")]
-	public class ChecklistItemsController : BaseController, IRepositoryController<ChecklistItem, AddChecklistItemViewModel, EditChecklistItemViewModel>
+	public class ChecklistItemsController : BaseController, IRepositoryController<ChecklistItemResponse, AddChecklistItemViewModel, EditChecklistItemViewModel>
 	{
 		private readonly IChecklistItemRepository _checklistItemRepository;
 		private readonly ITagRepository _tagRepository;
@@ -22,19 +24,20 @@ namespace DigitalInspectionNetCore21.Controllers
 		{
 			_checklistItemRepository = checklistItemRepository;
 			_tagRepository = tagRepository;
-
 		}
 
 		[HttpGet("")]
-		public ActionResult<IEnumerable<ChecklistItem>> GetAll()
+		public ActionResult<IEnumerable<ChecklistItemSummaryResponse>> GetAll()
 		{
 			var checklistItems = _checklistItemRepository.GetAll().ToList();
 
-			return Json(checklistItems);
+			var checklistItemSummaryResponses = Mapper.Map<IEnumerable<ChecklistItemSummaryResponse>>(checklistItems);
+
+			return Json(checklistItemSummaryResponses);
 		}
 
 		[HttpGet("{id}")]
-		public ActionResult<ChecklistItem> GetById(Guid id)
+		public ActionResult<ChecklistItemResponse> GetById(Guid id)
 		{
 			var checklistItem = _checklistItemRepository.GetById(id);
 
@@ -44,7 +47,8 @@ namespace DigitalInspectionNetCore21.Controllers
 			}
 			else
 			{
-				return Json(checklistItem);
+				var checklistItemResponse = Mapper.Map<ChecklistItemResponse>(checklistItem);
+				return Json(checklistItemResponse);
 			}
 		}
 
@@ -64,8 +68,8 @@ namespace DigitalInspectionNetCore21.Controllers
 				var selectedTagIds = checklistItem.ChecklistItemTags.Select(cit => cit.TagId);
 				var viewModel = new EditChecklistItemViewModel
 				{
-					ChecklistItem = checklistItem,
-					Tags = tags,
+					ChecklistItem = Mapper.Map<ChecklistItemResponse>(checklistItem),
+					Tags = Mapper.Map<IList<TagResponse>>(tags),
 					SelectedTagIds = selectedTagIds
 				};
 				return Json(viewModel);
@@ -73,7 +77,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		}
 
 		[HttpPost("")]
-		public ActionResult<ChecklistItem> Create([FromBody]AddChecklistItemViewModel request)
+		public ActionResult<ChecklistItemResponse> Create([FromBody]AddChecklistItemViewModel request)
 		{
 			var checklistItem = new ChecklistItem()
 			{
@@ -94,12 +98,14 @@ namespace DigitalInspectionNetCore21.Controllers
 			_context.ChecklistItems.Add(checklistItem);
 			_context.SaveChanges();
 
+			var checklistItemResponse = Mapper.Map<ChecklistItemResponse>(checklistItem);
+
 			var createdUri = new Uri(HttpContext.Request.Path, UriKind.Relative);
-			return Created(createdUri, checklistItem);
+			return Created(createdUri, checklistItemResponse);
 		}
 
 		[HttpPut("{id}")]
-		public ActionResult<ChecklistItem> Update(Guid id, [FromBody]EditChecklistItemViewModel vm)
+		public ActionResult Update(Guid id, [FromBody]EditChecklistItemViewModel vm)
 		{
 			// TODO Determine if Find() will help with getting rid of context attach.
 			var checklistItemInDb = _context.ChecklistItems.SingleOrDefault(ci => ci.Id == id);
@@ -218,15 +224,41 @@ namespace DigitalInspectionNetCore21.Controllers
 
 			_context.SaveChanges();
 
-			return Ok(measurement);
+			var measurementResponse = Mapper.Map<MeasurementResponse>(measurement);
+
+			return Ok(measurementResponse);
 		}
 
 		[HttpDelete("{checklistItemId}/Measurements/{measurementId}")]
-		public ActionResult DeleteMeasurement(Guid checklistItemId, Guid measurementId)
+		public ActionResult DeleteMeasurement(Guid measurementId, Guid checklistItemId)
 		{
 			var checklistItemInDb = _context.ChecklistItems
 				.Include(ci => ci.Measurements)
 				.Single(ci => ci.Id == checklistItemId);
+
+			if (checklistItemInDb != null)
+			{
+				var measurementToRemove = checklistItemInDb.Measurements.Single(m => m.Id == measurementId);
+				checklistItemInDb.Measurements.Remove(measurementToRemove);
+
+				// Uncomment this line if it is desired to remove all notions of this measurement from the APP.
+				// Leaving this commented out only removes its association from a checklist for new items, but allows
+				// old inspections to remain historically accurate. 
+				//_context.Measurements.Remove(measurementToRemove);
+				_context.SaveChanges();
+			}
+
+			return NoContent();
+		}
+
+		// TODO DJC Get fully working - Measurements are coming back empty.
+		[Obsolete("Clients should provide checklistItemId")]
+		[HttpDelete("Measurements/{measurementId}")]
+		public ActionResult DeleteMeasurement(Guid measurementId)
+		{
+			var checklistItemInDb = _context.ChecklistItems
+				.Include(ci => ci.Measurements)
+				.Single(ci => ci.Measurements.Any(m => m.Id == measurementId));
 
 			if (checklistItemInDb != null)
 			{
@@ -261,7 +293,9 @@ namespace DigitalInspectionNetCore21.Controllers
 
 			_context.SaveChanges();
 
-			return Ok(cannedResponse);
+			var cannedResponseResponse = Mapper.Map<CannedResponseResponse>(cannedResponse);
+
+			return Ok(cannedResponseResponse);
 		}
 
 		[HttpDelete("{checklistItemId}/CannedResponses/{cannedResponseId}")]
@@ -270,6 +304,30 @@ namespace DigitalInspectionNetCore21.Controllers
 			var checklistItemInDb = _context.ChecklistItems
 				.Include(ci => ci.CannedResponses)
 				.Single(ci => ci.Id == checklistItemId);
+
+			if (checklistItemInDb != null)
+			{
+				var cannedResponseToRemove = checklistItemInDb.CannedResponses.Single(m => m.Id == cannedResponseId);
+				checklistItemInDb.CannedResponses.Remove(cannedResponseToRemove);
+
+				// Uncomment this line if it is desired to remove all notions of this canned response from the APP.
+				// Leaving this commented out only removes its association from a checklist for new items, but allows
+				// old inspections to remain historically accurate. 
+				//_context.CannedResponses.Remove(cannedResponseToRemove);
+				_context.SaveChanges();
+			}
+
+			return NoContent();
+		}
+
+		// TODO DJC Get fully working - Canned responses are coming back empty.
+		[Obsolete("Clients should provide checklistItemId")]
+		[HttpDelete("CannedResponses/{cannedResponseId}")]
+		public ActionResult DeleteCannedResponse(Guid cannedResponseId)
+		{
+			var checklistItemInDb = _context.ChecklistItems
+				.Include(ci => ci.CannedResponses)
+				.Single(ci => ci.CannedResponses.Any(m => m.Id == cannedResponseId));
 
 			if (checklistItemInDb != null)
 			{

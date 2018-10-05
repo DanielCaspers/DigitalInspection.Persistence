@@ -1,6 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using AutoMapper;
 using DigitalInspectionNetCore21.Models.DbContexts;
+using DigitalInspectionNetCore21.Models.Inspections;
+using DigitalInspectionNetCore21.Models.Web.Inspections;
 using DigitalInspectionNetCore21.Services.Core;
 using DigitalInspectionNetCore21.Services.Core.Interfaces;
 using Microsoft.AspNetCore.Builder;
@@ -48,6 +53,8 @@ namespace DigitalInspectionNetCore21
 		        );
 
 			RegisterDependencies(services);
+
+			InitializeAutomapperMaps();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -159,5 +166,39 @@ namespace DigitalInspectionNetCore21
 		}
 
 		#endregion
+
+		// TODO: DJC Set this up using profile based configuration with reflection based mapping discovery
+	    private void InitializeAutomapperMaps()
+	    {
+		    Mapper.Initialize(
+			    cfg =>
+			    {
+				    cfg.CreateMap<Models.Inspections.Tag, TagResponse>();
+
+				    cfg.CreateMap<Checklist, ChecklistSummaryResponse>()
+					    .ForMember(dest => dest.ChecklistItemsCount, opt => opt.MapFrom(src => src.ChecklistChecklistItems.Count));
+
+				    cfg.CreateMap<InspectionMeasurement, InspectionMeasurementResponse>()
+					    .ForMember(dest => dest.InspectionItemId, opt => opt.MapFrom(src => src.InspectionItem.Id))
+					    .ForMember(dest => dest.MeasurementId, opt => opt.MapFrom(src => src.Measurement.Id));
+
+					cfg.CreateMap<Measurement, MeasurementResponse>();
+
+				    cfg.CreateMap<CannedResponse, CannedResponseResponse>();
+
+					cfg.CreateMap<ChecklistItem, ChecklistItemResponse>()
+					    .ForMember(dest => dest.ChecklistIds,
+						    opt => opt.MapFrom(src => src.ChecklistChecklistItems.Select(cci => cci.ChecklistId)))
+					    .ForMember(dest => dest.InspectionIds,
+						    opt => opt.MapFrom(src => src.ChecklistItemInspections.Select(cii => cii.InspectionId)))
+					    .ForMember(dest => dest.InspectionItemIds, opt => opt.MapFrom(src => src.InspectionItems.Select(ii => ii.Id)))
+					    .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.ChecklistItemTags.Select(cit => cit.Tag)));
+
+				    cfg.CreateMap<Checklist, ChecklistResponse>();
+
+					cfg.CreateMap<ChecklistItem, ChecklistItemSummaryResponse>()
+					    .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.ChecklistItemTags.Select(cit => cit.Tag)));
+				});
+		}
 	}
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using DigitalInspectionNetCore21.Models.Inspections;
+using DigitalInspectionNetCore21.Models.Web.Inspections;
 
 namespace DigitalInspectionNetCore21.ViewModels.ChecklistItems
 {
@@ -15,9 +16,9 @@ namespace DigitalInspectionNetCore21.ViewModels.ChecklistItems
 
 		[DisplayName("Tags *")]
 		[Required(ErrorMessage = "One or more tags are required")]
-		public IList<Tag> Tags { get; set; }
+		public IList<TagResponse> Tags { get; set; }
 
-		public IList<Measurement> Measurements { get; set; } = new List<Measurement>();
+		public IList<MeasurementResponse> Measurements { get; set; }
 
 		// TODO Clean this up post .NET Core port
 		public IList<Guid> TagIds { get; set; } = new List<Guid>();
