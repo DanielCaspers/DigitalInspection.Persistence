@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using DigitalInspectionNetCore21.Models.Inspections;
 using DigitalInspectionNetCore21.Models.Web.Inspections;
 
 namespace DigitalInspectionNetCore21.ViewModels.ChecklistItems

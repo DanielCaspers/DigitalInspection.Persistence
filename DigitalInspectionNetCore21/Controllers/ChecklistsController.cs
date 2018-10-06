@@ -52,7 +52,6 @@ namespace DigitalInspectionNetCore21.Controllers
 		}
 		[Obsolete("Use only for Legacy .NET Framework App")]
 		[HttpGet("{id}/Edit")]
-		// TODO DJC ViewModels must go under Web
 		public ActionResult<EditChecklistViewModel> EditById(Guid id)
 		{
 			var checklist = _context.Checklists
@@ -77,7 +76,6 @@ namespace DigitalInspectionNetCore21.Controllers
 		}
 
 		[HttpPost("")]
-		// TODO DJC ViewModels must go under Web
 		public ActionResult<ChecklistResponse> Create([FromBody]AddChecklistViewModel request)
 		{
 			var checklist = new Checklist
@@ -97,11 +95,11 @@ namespace DigitalInspectionNetCore21.Controllers
 
 		[HttpPut("{id}")]
 		//https://docs.microsoft.com/en-us/aspnet/core/mvc/models/file-uploads?view=aspnetcore-2.1
-		// TODO: DJC The checklist item selection for the checklist is broken
 		public ActionResult Update(Guid id, [FromBody]EditChecklistViewModel vm)
 		{
 			var checklistInDb = _context.Checklists
 				.Include(ci => ci.ChecklistChecklistItems)
+					.ThenInclude(cci => cci.ChecklistItem)
 				.SingleOrDefault(c => c.Id == id);
 			if (checklistInDb == null)
 			{
@@ -125,7 +123,6 @@ namespace DigitalInspectionNetCore21.Controllers
 				{
 					_context.ChecklistItems.Attach(item);
 				}
-				// FIXME DJC EF Many2Many - This could break the relationship
 				checklistInDb.ChecklistChecklistItems = selectedItems.Select(ci => new ChecklistChecklistItem
 				{
 					Checklist = checklistInDb,

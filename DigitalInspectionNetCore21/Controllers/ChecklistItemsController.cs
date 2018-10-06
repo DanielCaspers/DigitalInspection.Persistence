@@ -108,7 +108,13 @@ namespace DigitalInspectionNetCore21.Controllers
 		public ActionResult Update(Guid id, [FromBody]EditChecklistItemViewModel vm)
 		{
 			// TODO Determine if Find() will help with getting rid of context attach.
-			var checklistItemInDb = _context.ChecklistItems.SingleOrDefault(ci => ci.Id == id);
+			var checklistItemInDb = _context.ChecklistItems
+				.Include(ci => ci.ChecklistItemTags)
+					.ThenInclude(cit => cit.Tag)
+				.Include(ci => ci.CannedResponses)
+				.Include(ci => ci.Measurements)
+				.SingleOrDefault(ci => ci.Id == id);
+
 			if(checklistItemInDb == null)
 			{
 				return NotFound();
@@ -161,7 +167,6 @@ namespace DigitalInspectionNetCore21.Controllers
 			}
 
 			checklistItemInDb.Name = vm.ChecklistItem.Name;
-			// FIXME DJC EF Many2Many - Uncertain this will work. May need to attach ChecklistItemTags since things may be getting duplicated, or not removed when not reassigned
 			checklistItemInDb.ChecklistItemTags = _context.Tags
 				.Where(t => vm.SelectedTagIds.Contains(t.Id))
 				.Select(t => new ChecklistItemTag
@@ -181,26 +186,24 @@ namespace DigitalInspectionNetCore21.Controllers
 		[HttpDelete("{id}")]
 		public NoContentResult Delete(Guid id)
 		{
-			var checklistItemInDb = _context.ChecklistItems.Find(id);
+			var checklistItemInDb = _context.ChecklistItems
+				.Include(ci => ci.ChecklistItemTags)
+					.ThenInclude(cit => cit.Tag)
+				.Include(ci => ci.CannedResponses)
+				.Include(ci => ci.Measurements)
+				.SingleOrDefault(ci => ci.Id == id);
 
 			if (checklistItemInDb != null)
 			{
-				// TODO: DJC Should cascade delete work from checklistitem to measurement and canned response
-				foreach (var measurement in _context.Measurements)
+				
+				foreach (var measurement in _context.Measurements.Where(m => m.ChecklistItemId == id))
 				{
-					if (measurement.ChecklistItemId == id)
-					{
-						_context.Measurements.Remove(measurement);
-					}
+					_context.Measurements.Remove(measurement);
 				}
 
-				// TODO: DJC Should cascade delete work from checklistitem to measurement and canned response
-				foreach (var cannedResponse in _context.CannedResponses)
+				foreach (var cannedResponse in _context.CannedResponses.Where(cr => cr.ChecklistItemId == id))
 				{
-					if (cannedResponse.ChecklistItemId == id)
-					{
-						_context.CannedResponses.Remove(cannedResponse);
-					}
+					_context.CannedResponses.Remove(cannedResponse);
 				}
 
 				_context.ChecklistItems.Remove(checklistItemInDb);
@@ -251,14 +254,15 @@ namespace DigitalInspectionNetCore21.Controllers
 			return NoContent();
 		}
 
-		// TODO DJC Get fully working - Measurements are coming back empty.
 		[Obsolete("Clients should provide checklistItemId")]
 		[HttpDelete("Measurements/{measurementId}")]
 		public ActionResult DeleteMeasurement(Guid measurementId)
 		{
-			var checklistItemInDb = _context.ChecklistItems
-				.Include(ci => ci.Measurements)
-				.Single(ci => ci.Measurements.Any(m => m.Id == measurementId));
+			var checklistItems = _context.ChecklistItems
+				.Include(ci => ci.Measurements);
+
+
+			var checklistItemInDb = checklistItems.Single(ci => ci.Measurements.Any(m => m.Id == measurementId));
 
 			if (checklistItemInDb != null)
 			{
@@ -320,7 +324,6 @@ namespace DigitalInspectionNetCore21.Controllers
 			return NoContent();
 		}
 
-		// TODO DJC Get fully working - Canned responses are coming back empty.
 		[Obsolete("Clients should provide checklistItemId")]
 		[HttpDelete("CannedResponses/{cannedResponseId}")]
 		public ActionResult DeleteCannedResponse(Guid cannedResponseId)
