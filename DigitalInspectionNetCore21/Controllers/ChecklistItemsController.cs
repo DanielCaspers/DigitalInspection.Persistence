@@ -15,7 +15,7 @@ namespace DigitalInspectionNetCore21.Controllers
 {
 	//[AuthorizeRoles(Roles.Admin)]
 	[Route("[controller]")]
-	public class ChecklistItemsController : BaseController, IRepositoryController<ChecklistItemResponse, AddChecklistItemViewModel, EditChecklistItemViewModel>
+	public class ChecklistItemsController : BaseController
 	{
 		private readonly IChecklistItemRepository _checklistItemRepository;
 		private readonly ITagRepository _tagRepository;

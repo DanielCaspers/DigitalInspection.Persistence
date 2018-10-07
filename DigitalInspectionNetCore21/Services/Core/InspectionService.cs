@@ -5,8 +5,12 @@ using System.Linq;
 using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Models.Inspections;
 using DigitalInspectionNetCore21.Models.Inspections.Joins;
+using DigitalInspectionNetCore21.Models.Inspections.Reports;
 using DigitalInspectionNetCore21.Models.Orders;
+using DigitalInspectionNetCore21.Models.Web.Inspections;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace DigitalInspectionNetCore21.Services.Core
 {
@@ -21,7 +25,7 @@ namespace DigitalInspectionNetCore21.Services.Core
 			return GetOrCreateInspectionMeasurements(ctx, inspection);
 		}
 
-		public static bool DeleteInspection(ApplicationDbContext ctx, Inspection inspection)
+		public static bool DeleteInspection(ApplicationDbContext ctx, Inspection inspection, string webRootPath)
 		{
 			var inspectionMeasurements = ctx.InspectionMeasurements.Where(im => im.InspectionItem.Inspection.Id == inspection.Id);
 			ctx.InspectionMeasurements.RemoveRange(inspectionMeasurements);
@@ -29,10 +33,8 @@ namespace DigitalInspectionNetCore21.Services.Core
 			var inspectionImages = ctx.InspectionImages.Where(ii => ii.InspectionItem.Inspection.Id == inspection.Id).ToList();
 			inspectionImages.ForEach(ImageService.DeleteImage);
 
-			// TODO: Revise service when dependency injection framework is in use, and abstract into a service
-			// FIXME DJC Requires refactor 
 			// https://www.mikesdotnetting.com/article/302/server-mappath-equivalent-in-asp-net-core
-			string path = ""; // HttpContext.Current.Server.MapPath($"~/Uploads/Inspections/{inspection.WorkOrderId}");
+			string path = Path.Combine(webRootPath, $"../Uploads/Inspections/{inspection.WorkOrderId}");
 			try
 			{
 				Directory.Delete(path, true);
@@ -54,6 +56,54 @@ namespace DigitalInspectionNetCore21.Services.Core
 			ctx.Inspections.Remove(inspection);
 
 			return TrySave(ctx);
+		}
+
+		public static JsonResult BuildInspectionReport(ApplicationDbContext ctx, string imageBaseUrl, IEnumerable<InspectionItem> unfilteredInspectionItems, bool grouped, bool includeUnknown)
+		{
+			var applicableTags = ctx.Tags
+				.Where(t => t.IsVisibleToCustomer)
+				.Select(t => t.Id)
+				.ToList();
+
+			// Only show inspection items which correspond to one or more customer visible tags
+			var inspectionItems = unfilteredInspectionItems
+				.Where(ii => ii.ChecklistItem.ChecklistItemTags
+					.Select(joinItem => joinItem.TagId)
+					.Intersect(applicableTags)
+					.Any()
+				).ToList();
+
+			if (!includeUnknown)
+			{
+				// Only show inspection items which have had a marked condition
+				inspectionItems = inspectionItems.Where(ii => ii.Condition != RecommendedServiceSeverity.UNKNOWN).ToList();
+			}
+
+			if (grouped)
+			{
+				var inspectionReportGroups = inspectionItems
+					.GroupBy(ii =>
+						ii.ChecklistItem.ChecklistItemTags
+							.Select(joinItem => joinItem.Tag)
+							.Where(t => t.IsVisibleToCustomer)
+							.Select(t => t.Name)
+							.First()
+					)
+					.OrderBy(ig => ig.OrderBy(ii => ii.Condition).First().Condition)
+					.Select(ig => new InspectionReportGroup(ig, imageBaseUrl))
+					.ToList();
+
+				return new JsonResult(inspectionReportGroups);
+			}
+			else
+			{
+				var inspectionReportItems = inspectionItems
+					.OrderBy(ii => ii.Condition)
+					.Select(ii => new InspectionReportItem(ii, imageBaseUrl))
+					.ToList();
+
+				return new JsonResult(inspectionReportItems);
+			}
 		}
 
 		#endregion
@@ -135,8 +185,7 @@ namespace DigitalInspectionNetCore21.Services.Core
 
 		public static bool UpdateInspectionItemMeasurements(
 			ApplicationDbContext ctx,
-			InspectionItem inspectionItem,
-			IEnumerable<InspectionMeasurement> inspectionMeasurements)
+			IEnumerable<UpdateInspectionMeasurementRequest> inspectionMeasurements)
 		{
 			foreach (var inspectionMeasurement in inspectionMeasurements)
 			{
@@ -184,6 +233,22 @@ namespace DigitalInspectionNetCore21.Services.Core
 			image.IsVisibleToCustomer = isVisibleToCustomer;
 
 			return TrySave(ctx);
+		}
+
+		public static IIncludableQueryable<Inspection, CannedResponse> GetInspectionItems(ApplicationDbContext ctx)
+		{
+			return ctx.Inspections
+				.Include(i => i.InspectionItems)
+					.ThenInclude(ii => ii.InspectionImages)
+				.Include(i => i.InspectionItems)
+					.ThenInclude(ii => ii.ChecklistItem)
+					.ThenInclude(ii => ii.ChecklistItemTags)
+				.Include(i => i.InspectionItems)
+					.ThenInclude(ii => ii.InspectionMeasurements)
+					.ThenInclude(im => im.Measurement)
+				.Include(i => i.InspectionItems)
+					.ThenInclude(ii => ii.InspectionItemCannedResponses)
+					.ThenInclude(iirc => iirc.CannedResponse);
 		}
 
 		#endregion
@@ -309,16 +374,13 @@ namespace DigitalInspectionNetCore21.Services.Core
 
 		private static bool TrySave(DbContext ctx)
 		{
-			bool wasSuccessful = false;
-			try
-			{
-				ctx.SaveChanges();
-				wasSuccessful = true;
-			}
-			catch (Exception dbEx)
-			{
-				// ExceptionHandlerService.HandleException(dbEx);
-			}
+			var wasSuccessful = false;
+
+			ctx.SaveChanges();
+			wasSuccessful = true;
+
+			return wasSuccessful;
+
 			// FIXME DJC EF Validation - Appears to be different https://stackoverflow.com/questions/46430619/net-core-2-ef-core-error-handling-save-changes
 			//try
 			//{
@@ -329,8 +391,6 @@ namespace DigitalInspectionNetCore21.Services.Core
 			//{
 			//	ExceptionHandlerService.HandleException(dbEx);
 			//}
-
-			return wasSuccessful;
 		}
 
 		#endregion

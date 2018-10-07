@@ -198,6 +198,11 @@ namespace DigitalInspectionNetCore21
 
 					cfg.CreateMap<ChecklistItem, ChecklistItemSummaryResponse>()
 					    .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.ChecklistItemTags.Select(cit => cit.Tag)));
+
+				    cfg.CreateMap<InspectionItem, InspectionItemResponse>()
+					    .ForMember(dest => dest.InspectionId, opt => opt.MapFrom(src => src.Inspection.Id))
+					    .ForMember(dest => dest.ChecklistItemId, opt => opt.MapFrom(src => src.ChecklistItem.Id))
+					    .ForMember(dest => dest.CannedResponseIds, opt => opt.MapFrom(src => src.InspectionItemCannedResponses.Select(iicr => iicr.CannedResponseId)));
 				});
 		}
 	}

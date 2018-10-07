@@ -14,7 +14,7 @@ namespace DigitalInspectionNetCore21.Controllers
 {
 	//[AuthorizeRoles(Roles.Admin)]
 	[Route("[controller]")]
-	public class ChecklistsController : BaseController, IRepositoryController<ChecklistResponse, AddChecklistViewModel, EditChecklistViewModel>
+	public class ChecklistsController : BaseController
 	{
 		public ChecklistsController(ApplicationDbContext db) : base(db) { }
 

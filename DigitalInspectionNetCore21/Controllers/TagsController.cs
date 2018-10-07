@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DigitalInspectionNetCore21.Models.DbContexts;
+using DigitalInspectionNetCore21.Models.Inspections;
 using DigitalInspectionNetCore21.Models.Web.Inspections;
 using DigitalInspectionNetCore21.Services.Core.Interfaces;
 using DigitalInspectionNetCore21.ViewModels.Tags;
@@ -12,7 +13,7 @@ namespace DigitalInspectionNetCore21.Controllers
 {
 	//[AuthorizeRoles(Roles.Admin)]
 	[Route("[controller]")]
-	public class TagsController : BaseController, IRepositoryController<TagResponse, AddTagViewModel, AddTagViewModel>
+	public class TagsController : BaseController
 	{
 		private readonly ITagRepository _tagRepository;
 
@@ -25,10 +26,21 @@ namespace DigitalInspectionNetCore21.Controllers
 		public ActionResult<IEnumerable<TagResponse>> GetAll()
 		{
 			var tags = _tagRepository.GetAll().ToList();
+			return GetTagsResponse(tags);
+		}
 
-			var tagResponse = Mapper.Map<IEnumerable<TagResponse>>(tags);
+		[HttpGet("VisibleToCustomer")]
+		public ActionResult<IEnumerable<TagResponse>> GetAllCustomerVisible()
+		{
+			var tags = _tagRepository.GetAllCustomerVisible().ToList();
+			return GetTagsResponse(tags);
+		}
 
-			return Json(tagResponse);
+		[HttpGet("VisibleToEmployee")]
+		public ActionResult<IEnumerable<TagResponse>> GetAllEmployeeVisible()
+		{
+			var tags = _tagRepository.GetAllEmployeeVisible().ToList();
+			return GetTagsResponse(tags);
 		}
 
 		[HttpGet("{id}")]
@@ -95,6 +107,13 @@ namespace DigitalInspectionNetCore21.Controllers
 			}
 
 			return NoContent();
+		}
+
+		private JsonResult GetTagsResponse(IEnumerable<Tag> tags)
+		{
+			var tagResponse = Mapper.Map<IEnumerable<TagResponse>>(tags);
+
+			return Json(tagResponse);
 		}
 	}
 }
