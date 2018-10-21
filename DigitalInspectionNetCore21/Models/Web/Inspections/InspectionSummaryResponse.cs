@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace DigitalInspectionNetCore21.Models.Web.Inspections
 {
+	/// <summary>
+	/// An inspection report
+	/// </summary>
 	public class InspectionSummaryResponse
 	{
 		public Guid Id { get; set; }

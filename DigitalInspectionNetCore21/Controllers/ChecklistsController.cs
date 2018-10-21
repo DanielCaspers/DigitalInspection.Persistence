@@ -18,6 +18,10 @@ namespace DigitalInspectionNetCore21.Controllers
 	{
 		public ChecklistsController(ApplicationDbContext db) : base(db) { }
 
+		/// <summary>
+		/// Get all checklists in summary format
+		/// </summary>
+		/// <response code="200">Ok</response>
 		[HttpGet("")]
 		// TODO DJC Update this repository pattern to be an more forgiving to different model types, since I'm using summary models here
 		public ActionResult<IEnumerable<ChecklistSummaryResponse>> GetAll()
@@ -32,6 +36,12 @@ namespace DigitalInspectionNetCore21.Controllers
 			return Json(checklistSummaryResponses);
 		}
 
+		/// <summary>
+		/// Get checklist, and all of its checklist items
+		/// </summary>
+		/// <param name="id"></param>
+		/// <response code="200">Ok</response>
+		/// <response code="404">Not found</response>
 		[HttpGet("{id}")]
 		public ActionResult<ChecklistResponse> GetById(Guid id)
 		{
@@ -50,6 +60,13 @@ namespace DigitalInspectionNetCore21.Controllers
 				return Json(checklistResponse);
 			}
 		}
+
+		/// <summary>
+		/// Get checklist with related view model needs
+		/// </summary>
+		/// <param name="id"></param>
+		/// <response code="200">Ok</response>
+		/// <response code="404">Not found</response>
 		[Obsolete("Use only for Legacy .NET Framework App")]
 		[HttpGet("{id}/Edit")]
 		public ActionResult<EditChecklistViewModel> EditById(Guid id)
@@ -75,6 +92,14 @@ namespace DigitalInspectionNetCore21.Controllers
 			return Json(viewModel);
 		}
 
+		/// <summary>
+		/// Create a checklist as a template for a future inspection
+		/// </summary>
+		/// <param name="request">
+		/// Constraints to impose on the inspection to be performed,
+		///  such as which checklist items must be performed
+		/// </param>
+		/// <response code="201">Created</response>
 		[HttpPost("")]
 		public ActionResult<ChecklistResponse> Create([FromBody]AddChecklistViewModel request)
 		{
@@ -93,9 +118,16 @@ namespace DigitalInspectionNetCore21.Controllers
 			return Created(createdUri, checklistResponse);
 		}
 
+		/// <summary>
+		///	Update a checklist
+		/// </summary>
+		/// <param name="id"></param>
+		/// <param name="request">Constraints to impose on the inspection to be performed</param>
+		/// <response code="204">No content</response>
+		/// <response code="404">Checklist item not found</response>
 		[HttpPut("{id}")]
 		//https://docs.microsoft.com/en-us/aspnet/core/mvc/models/file-uploads?view=aspnetcore-2.1
-		public ActionResult Update(Guid id, [FromBody]EditChecklistViewModel vm)
+		public ActionResult Update(Guid id, [FromBody]EditChecklistViewModel request)
 		{
 			var checklistInDb = _context.Checklists
 				.Include(ci => ci.ChecklistChecklistItems)
@@ -107,15 +139,15 @@ namespace DigitalInspectionNetCore21.Controllers
 			}
 			else
 			{
-				checklistInDb.Name = vm.Checklist.Name;
+				checklistInDb.Name = request.Checklist.Name;
 
 				IList<ChecklistItem> selectedItems = new List<ChecklistItem>();
 				// Using plain for loop for parallel array data reference
-				for (var i = 0; i < vm.IsChecklistItemSelected.Count; i++)
+				for (var i = 0; i < request.IsChecklistItemSelected.Count; i++)
 				{
-					if (vm.IsChecklistItemSelected[i])
+					if (request.IsChecklistItemSelected[i])
 					{
-						Guid selectedItemId = vm.ChecklistItems[i].Id;
+						Guid selectedItemId = request.ChecklistItems[i].Id;
 						selectedItems.Add(_context.ChecklistItems.Single(ci => ci.Id == selectedItemId));
 					}
 				}
@@ -136,6 +168,17 @@ namespace DigitalInspectionNetCore21.Controllers
 			}
 		}
 
+		/// <summary>
+		/// Delete a checklist
+		/// </summary>
+		/// <remarks>
+		/// Deleting a checklist leaves all performed inspections, as well as their inspection items intact.
+		/// This is by design, so as to allow templates for work to be performed to change fluidly, but the underlying
+		/// units, once performed, should stick around to prevent loss of inspection reporting capability.
+		/// https://github.com/DanielCaspers/DigitalInspection/issues/74
+		/// </remarks>
+		/// <param name="id"></param>
+		/// <response code="204">No content</response>
 		[HttpDelete("{id}")]
 		public NoContentResult Delete(Guid id)
 		{

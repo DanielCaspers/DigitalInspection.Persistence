@@ -1,0 +1,678 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>DigitalInspectionNetCore21</name>
+    </assembly>
+    <members>
+        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistItemsController.GetAll">
+            <summary>
+            Get all checklist items in summary format
+            </summary>
+            <response code="200">Ok</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistItemsController.GetById(System.Guid)">
+            <summary>
+            Get checklist item and all of its relationships
+            </summary>
+            <param name="id"></param>
+            <response code="200">Ok</response>
+            <response code="404">Not found</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistItemsController.EditById(System.Guid)">
+            <summary>
+            Get checklist item with related view model needs.
+            </summary>
+            <param name="id"></param>
+            <response code="200">Ok</response>
+            <response code="404">Not found</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistItemsController.Create(DigitalInspectionNetCore21.ViewModels.ChecklistItems.AddChecklistItemViewModel)">
+            <summary>
+            Create a checklist item as a templated item for a future inspection
+            </summary>
+            <param name="request">Constraints to impose on the unit of inspection to be performed</param>
+            <response code="201">Created</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistItemsController.Update(System.Guid,DigitalInspectionNetCore21.ViewModels.ChecklistItems.EditChecklistItemViewModel)">
+            <summary>
+            Update a checklist item
+            </summary>
+            <param name="id"></param>
+            <param name="request">Constraints to impose on the unit of inspection to be performed</param>
+            <response code="204">No content</response>
+            <response code="404">Checklist item not found</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistItemsController.Delete(System.Guid)">
+            <summary>
+            Delete a checklist item
+            </summary>
+            <remarks>
+            Checklist items cannot be deleted once they've been used in an inspection at the moment.
+            This is currently done by design to prevent data loss in inspection reports.
+            https://github.com/DanielCaspers/DigitalInspection/issues/74
+            </remarks>
+            <param name="id"></param>
+            <response code="204">No content</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistItemsController.AddMeasurement(System.Guid)">
+            <summary>
+            Add a measurement to a checklist item
+            </summary>
+            <param name="id">The id of the checklist item to add the measurement to</param>
+            <response code="200">Ok</response>
+            <response code="404">Checklist item not found</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistItemsController.DeleteMeasurement(System.Guid,System.Guid)">
+            <summary>
+            Delete a measurement from a checklist item
+            </summary>
+            <param name="measurementId">The id of measurement to delete</param>
+            <param name="checklistItemId">The id of checklist item which the measurement belongs to</param>
+            <response code="204">No content</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistItemsController.DeleteMeasurement(System.Guid)">
+            <summary>
+            Delete a measurement from a checklist item
+            </summary>
+            <param name="measurementId">The id of measurement to delete</param>
+            <response code="204">No content</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistItemsController.AddCannedResponse(System.Guid)">
+            <summary>
+            Add a canned repsonse to a checklist item
+            </summary>
+            <param name="id">The id of the checklist item to add the canned response to</param>
+            <response code="200">Ok</response>
+            <response code="404">Checklist item not found</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistItemsController.DeleteCannedResponse(System.Guid,System.Guid)">
+            <summary>
+            Delete a canned response from a checklist item
+            </summary>
+            <param name="cannedResponseId">The id of canned response to delete</param>
+            <param name="checklistItemId">The id of checklist item which the canned response belongs to</param>
+            <response code="204">No content</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistItemsController.DeleteCannedResponse(System.Guid)">
+            <summary>
+            Delete a canned response from a checklist item
+            </summary>
+            <param name="cannedResponseId">The id of canned response to delete</param>
+            <response code="204">No content</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistsController.GetAll">
+            <summary>
+            Get all checklists in summary format
+            </summary>
+            <response code="200">Ok</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistsController.GetById(System.Guid)">
+            <summary>
+            Get checklist, and all of its checklist items
+            </summary>
+            <param name="id"></param>
+            <response code="200">Ok</response>
+            <response code="404">Not found</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistsController.EditById(System.Guid)">
+            <summary>
+            Get checklist with related view model needs
+            </summary>
+            <param name="id"></param>
+            <response code="200">Ok</response>
+            <response code="404">Not found</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistsController.Create(DigitalInspectionNetCore21.ViewModels.Checklists.AddChecklistViewModel)">
+            <summary>
+            Create a checklist as a template for a future inspection
+            </summary>
+            <param name="request">
+            Constraints to impose on the inspection to be performed,
+             such as which checklist items must be performed
+            </param>
+            <response code="201">Created</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistsController.Update(System.Guid,DigitalInspectionNetCore21.ViewModels.Checklists.EditChecklistViewModel)">
+            <summary>
+            Update a checklist
+            </summary>
+            <param name="id"></param>
+            <param name="request">Constraints to impose on the inspection to be performed</param>
+            <response code="204">No content</response>
+            <response code="404">Checklist item not found</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistsController.Delete(System.Guid)">
+            <summary>
+            Delete a checklist
+            </summary>
+            <remarks>
+            Deleting a checklist leaves all performed inspections, as well as their inspection items intact.
+            This is by design, so as to allow templates for work to be performed to change fluidly, but the underlying
+            units, once performed, should stick around to prevent loss of inspection reporting capability.
+            https://github.com/DanielCaspers/DigitalInspection/issues/74
+            </remarks>
+            <param name="id"></param>
+            <response code="204">No content</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.InspectionImagesController.Upload(System.Guid,Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Add an image to an inspection item
+            </summary>
+            <param name="inspectionItemId">Id of the inspection item to add the image to</param>
+            <param name="image">The image to attach</param>
+            <response code="204">No content</response>
+            <response code="404">Inspection item not found</response>
+            <response code="500">Unable to save image</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.InspectionImagesController.Delete(System.Guid,System.Guid)">
+            <summary>
+            Delete an image from an inspection item
+            </summary>
+            <param name="inspectionItemId">Id of the inspection item to remove the image from</param>
+            <param name="imageId">The id of the image to remove</param>
+            <response code="204">No content</response>
+            <response code="404">Inspection item not found, or image not found to belong to inspection item</response>
+            <response code="500">Unable to delete image</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.InspectionImagesController.SetCustomerVisibility(System.Guid,System.Guid,System.Boolean)">
+            <summary>
+            Set the visibility of the image
+            </summary>
+            <param name="inspectionItemId">Id of the inspection item the image belongs to</param>
+            <param name="imageId">Id of the image to change the visibility of</param>
+            <param name="isVisibleToCustomer">
+            If true, this image will be displayed in the inspection report.
+            If false, it will be hidden from the inspection report, making it for internal use only.
+            </param>
+            <response code="204">No content</response>
+            <response code="404">Inspection item not found, or image not found to belong to inspection item</response>
+            <response code="500">Unable to update visibility</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.InspectionItemsController.GetById(System.Guid)">
+            <summary>
+            Get an inspection item
+            </summary>
+            <param name="id">Id of the inspection item</param>
+            <response code="200">Ok</response>
+            <response code="404">Not found</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.InspectionItemsController.SetCondition(System.Guid,DigitalInspectionNetCore21.Models.Orders.RecommendedServiceSeverity)">
+            <summary>
+            Mark the condition of an inspection item
+            </summary>
+            <param name="id">Id of the inspection item</param>
+            <param name="inspectionItemCondition">Condition of the item being inspected</param>
+            <response code="204">No content</response>
+            <response code="404">Inspection item not found</response>
+            <response code="500">Unable to update condition</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.InspectionItemsController.SetCannedResponses(System.Guid,System.Collections.Generic.IEnumerable{System.Guid})">
+            <summary>
+            Mark the applicable canned responses for an inspection item
+            </summary>
+            <param name="id">Id of the inspection item</param>
+            <param name="selectedCannedResponseIds">Ids of the canned responses which apply to this inspection item</param>
+            <response code="204">No content</response>
+            <response code="404">Inspection item not found</response>
+            <response code="500">Unable to set the applicable canned responses</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.InspectionItemsController.SetCustomerConcern(System.Guid,System.Boolean)">
+            <summary>
+            Mark whether or not this inspection item addresses a customer's concern, or reason, for requesting the inspection
+            </summary>
+            <param name="id">Id of the inspection item</param>
+            <param name="isCustomerConcern">Boolean indicating whether or not this is of concern to the customer</param>
+            <response code="204">No content</response>
+            <response code="404">Inspection item not found</response>
+            <response code="500">Unable to update the customer's concern</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.InspectionItemsController.SetItemNotes(System.Guid,System.String)">
+            <summary>
+            Add or update custom notes to be shared with the customer regarding any pertinent details
+            </summary>
+            <param name="id">Id of the inspection item</param>
+            <param name="notes">Notes capturing inspection item observations</param>
+            <response code="204">No content</response>
+            <response code="404">Inspection item not found</response>
+            <response code="500">Unable to update the inspection item notes</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.InspectionItemsController.SetMeasurements(System.Guid,System.Collections.Generic.IEnumerable{DigitalInspectionNetCore21.Models.Web.Inspections.UpdateInspectionMeasurementRequest})">
+            <summary>
+            Update measurements to be collected with their values
+            </summary>
+            <param name="id">Id of the inspection item</param>
+            <param name="measurementUpdates">Key value pairs of ids of the measurements being collected, and their values</param>
+            <response code="204">No content</response>
+            <response code="404">Inspection item not found</response>
+            <response code="500">Unable to update the inspection item's measurement values</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.InspectionsController.Report(System.Guid,System.Boolean,System.Boolean)">
+            <summary>
+            Get the inspection report
+            </summary>
+            <remarks>The response is always ordered by severity, from greatest to least</remarks>
+            <param name="id">Id of the inspection</param>
+            <param name="grouped">
+            When true, inspection items are grouped by severity.
+            When false, inspection items are returned in a flattened representation
+            </param>
+            <param name="includeUnknown">
+            When false, includes inspection items whose conditions are unknown (e.g. Unmarked or unanswered).
+            This can be useful if you have situations where you find it unnecessary to perform a unit of inspection,
+            but don't want it communicated to a customer that this step was skipped.
+            When true, all inspection items are included in the report, regardless of condition.
+            </param>
+            <response code="200">Ok</response>
+            <response code="404">Not found</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.InspectionsController.WorkOrderId(System.Guid)">
+            <summary>
+            Get the id of work order associated with a given inspection 
+            </summary>
+            <param name="id">Id of the inspection</param>
+            <response code="200">Ok</response>
+            <response code="404">Not found</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.TagsController.GetAll">
+            <summary>
+            Get all tags
+            </summary>
+            <response code="200">Ok</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.TagsController.GetAllCustomerVisible">
+            <summary>
+            Get all tags which are visible to customers
+            </summary>
+            <response code="200">Ok</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.TagsController.GetAllEmployeeVisible">
+            <summary>
+            Get all tags which are visible to employees
+            </summary>
+            <response code="200">Ok</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.TagsController.GetById(System.Guid)">
+            <summary>
+            Get tag
+            </summary>
+            <param name="id"></param>
+            <response code="200">Ok</response>
+            <response code="404">Not found</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.TagsController.Create(DigitalInspectionNetCore21.ViewModels.Tags.AddTagViewModel)">
+            <summary>
+            Create a tag for grouping checklist items under
+            </summary>
+            <remarks>
+            The tags feature has multiple uses
+            - Allow employees to complete inspections by looking through the entire list, 
+            or by filtering down to relevant tags
+            - Use tag visibility to remove certain items from being sent out in an inspection
+            </remarks>
+            <param name="request">Tag description</param>
+            <response code="201">Created</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.TagsController.Update(System.Guid,DigitalInspectionNetCore21.ViewModels.Tags.AddTagViewModel)">
+            <summary>
+            Update a tag
+            </summary>
+            <param name="id"></param>
+            <param name="tag">Tag description</param>
+            <response code="204">No content</response>
+            <response code="404">Tag not found</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.TagsController.Delete(System.Guid)">
+            <summary>
+            Delete a tag
+            </summary>
+            <remarks>
+            Tags only serve as metadata for checklist items. 
+            Thus, deleting them has no impact on inspections reports.
+            </remarks>
+            <param name="id"></param>
+            <response code="204">No content</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.WorkOrdersController.InspectionIdForOrder(System.String)">
+            <summary>
+            Get the id of inspection associated with a given work order
+            </summary>
+            <param name="id">
+            Unique identifier of your work order 
+            (e.g. the unit of sale or invoice ID for services rendered)
+            </param>
+            <response code="200">Ok</response>
+            <response code="404">Not found</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.WorkOrdersController.ReportForOrder(System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Get the inspection report associated with a given work order
+            </summary>
+            <remarks>The response is always ordered by severity, from greatest to least</remarks>
+            <param name="id">
+            Unique identifier of your work order 
+            (e.g. the unit of sale or invoice ID for services rendered)
+            </param>
+            <param name="grouped">
+            When true, inspection items are grouped by severity.
+            When false, inspection items are returned in a flattened representation
+            </param>
+            <param name="includeUnknown">
+            When false, includes inspection items whose conditions are unknown (e.g. Unmarked or unanswered).
+            This can be useful if you have situations where you find it unnecessary to perform a unit of inspection,
+            but don't want it communicated to a customer that this step was skipped.
+            When true, all inspection items are included in the report, regardless of condition.
+            </param>
+            <response code="200">Ok</response>
+            <response code="404">Not found</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Controllers.WorkOrdersController.Delete(System.String)">
+            <summary>
+            Delete the inspection report associated with a given work order
+            </summary>
+            <remarks>
+            This can be useful if you need to
+            - start an order fresh in your system
+            - reuse invoice IDs due to rollover mechanisms
+            </remarks>
+            <param name="id">
+            Unique identifier of your work order 
+            (e.g. the unit of sale or invoice ID for services rendered)
+            </param>
+            <response code="204">No content</response>
+            <response code="500">Unable to delete some part of the inspection</response>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Models.DbContexts.ApplicationDbContext.ConfigureManyToManyRelationships(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            References
+            https://www.learnentityframeworkcore.com/configuration/many-to-many-relationship-configuration
+            4 part blog for possible refactor
+            https://blog.oneunicorn.com/2017/09/25/many-to-many-relationships-in-ef-core-2-0-part-2-hiding-as-ienumerable/
+        </member>
+        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.CannedResponseResponse">
+            <summary>
+            Used to describe a common problem that occurs on a checklist item
+            </summary>
+            <remarks>
+            This is used in order to eliminate typing and cognitive load from those inspecting the vehicle.
+            This also allows for rich, thoughtful descriptions of the nature of the problem to be described
+            precisely every time they are marked down.
+            </remarks>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.CannedResponseResponse.Response">
+            <summary>
+            The shorthand description for the common problem associated unit of inspection.
+            </summary>
+            <remarks>This is to be used by employees when performing an inspection.</remarks>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.CannedResponseResponse.Url">
+            <summary>
+            A url for linking to external resources describing the problem, or help content
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.CannedResponseResponse.Description">
+            <summary>
+            A longer description of the problem
+            </summary>
+            <remarks>
+            This is to be read by customers attempting
+             to understand how this problem affects their vehicle.
+            </remarks>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.CannedResponseResponse.LevelsOfConcern">
+            <summary>
+            A list of conditions, or severites, associated with this particular problem on the item being inspected.
+            </summary>
+        </member>
+        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.ChecklistItemResponse">
+            <summary>
+            A unit of work to be performed to determine the condition of a vehicle
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.ChecklistItemResponse.Name">
+            <summary>
+            The name of the unit of work
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.ChecklistItemResponse.Tags">
+            <summary>
+            The tags associated with this checklist item
+            </summary>
+        </member>
+        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.ChecklistItemSummaryResponse">
+            <summary>
+            A summary of a unit of work to be performed to determine the condition of a vehicle
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.ChecklistItemSummaryResponse.Tags">
+            <summary>
+            The tags associated with this checklist item
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.ChecklistItemSummaryResponse.Name">
+            <summary>
+            The name of the unit of work
+            </summary>
+        </member>
+        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.ChecklistResponse">
+            <summary>
+            A series of steps to perform to quanitfy the condition of a vehicle
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.ChecklistResponse.ChecklistItems">
+            <summary>
+            The items which make up the checklist
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.ChecklistResponse.Name">
+            <summary>
+            The name of the checklist
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.ChecklistSummaryResponse.ChecklistItemsCount">
+            <summary>
+            Number of checklist items in the checklist
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.ChecklistSummaryResponse.Name">
+            <summary>
+            The name of the checklist
+            </summary>
+        </member>
+        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionImageResponse">
+            <summary>
+            An image belonging to an inspection item performed on a vehicle. 
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionImageResponse.Title">
+            <summary>
+            The title of the image file
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionImageResponse.ImageUrl">
+            <summary>
+            The location of the image on the server
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionImageResponse.CreatedDate">
+            <summary>
+            The upload date of the image
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionImageResponse.InspectionItemId">
+            <summary>
+            The id of the associated inspection item
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionImageResponse.IsVisibleToCustomer">
+            <summary>
+            Determines if this image is visible in the customer's inspection report
+            </summary>
+        </member>
+        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionMeasurementResponse">
+            <summary>
+            The measurement collected while performing an inspection
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionMeasurementResponse.InspectionItemId">
+            <summary>
+            The id of theinspection item which the measurement corresponds to
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionMeasurementResponse.MeasurementId">
+            <summary>
+            The id of the measurement template describing this value collected
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionMeasurementResponse.Value">
+            <summary>
+            The value collected
+            </summary>
+            <remarks>Null implies no value was collected</remarks>
+        </member>
+        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionSummaryResponse">
+            <summary>
+            An inspection report
+            </summary>
+        </member>
+        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.MeasurementResponse">
+            <summary>
+            A measurement to quantify the condition of an inspection item
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.MeasurementResponse.Label">
+            <summary>
+            The display name of the measurement to collect
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.MeasurementResponse.MinValue">
+            <summary>
+            The minimum value of the measurement, inclusive
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.MeasurementResponse.MaxValue">
+            <summary>
+            The maximum value of the measurement, inclusive
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.MeasurementResponse.StepSize">
+            <summary>
+            The amount to increment/decrement by in the inspection by default
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.MeasurementResponse.Unit">
+            <summary>
+            The unit of measure being collected.
+            </summary>
+            <remarks>
+            For additional precision, consider making your measurement units include the fraction by default.
+            For example, if you want to measure tire tread depth, consider units of "32nds inch"
+            </remarks>
+        </member>
+        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.TagResponse">
+            <summary>
+            Tags are used to 
+            - Group what customers see down by subsystem or feature in order for them to better identify
+            the scope and size of the problems with their vehicle.
+            - Allow employees to filter by a logical grouping so that they can order their inspections 
+            by the most relevant sections to perform at any given time.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "P:DigitalInspectionNetCore21.Models.Web.Inspections.TagResponse.Name" -->
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.TagResponse.IsVisibleToCustomer">
+            <summary>
+            Whether or not any the results of performing any associated checklist items
+            should be included in the customer's inspection report
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.TagResponse.IsVisibleToEmployee">
+            <summary>
+            Whether or not the grouping should be visible to employees
+            </summary>
+            <remarks>
+            For example, you may find that certain groupings work well with explaining
+            the results to a customer, but provide a suboptimal flow for those performing the inspection.
+            Creating separate tags for customers and employees can sometimes be ideal depending upon use case.
+            </remarks>
+        </member>
+        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.UpdateInspectionMeasurementRequest">
+            <summary>
+            A key-value pair describing inspection measurements to update, and their values
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.UpdateInspectionMeasurementRequest.Id">
+            <summary>
+            ID of the inspection measurement being updated
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.UpdateInspectionMeasurementRequest.Value">
+            <summary>
+            The measurement collected
+            </summary>
+            <remarks>
+            Null implies that the value was not collected
+            </remarks>
+        </member>
+        <member name="T:DigitalInspectionNetCore21.Services.Core.ChecklistItemRepository">
+            <inheritdoc cref="T:DigitalInspectionNetCore21.Services.Core.Interfaces.IChecklistItemRepository"/>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Services.Core.InspectionService.GetOrCreateInspectionInternal(DigitalInspectionNetCore21.Models.DbContexts.ApplicationDbContext,System.String,DigitalInspectionNetCore21.Models.Inspections.Checklist)">
+            Gets inspection from DB if already exists, or create one in the DB and then return it. 
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Services.Core.InspectionService.GetOrCreateInspectionItems(DigitalInspectionNetCore21.Models.DbContexts.ApplicationDbContext,DigitalInspectionNetCore21.Models.Inspections.Checklist,DigitalInspectionNetCore21.Models.Inspections.Inspection)">
+            Gets all inspectionitems from DB if they already exists, and creates them if they don't already 
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Services.Core.InspectionService.GetOrCreateInspectionMeasurements(DigitalInspectionNetCore21.Models.DbContexts.ApplicationDbContext,DigitalInspectionNetCore21.Models.Inspections.Inspection)">
+            Gets all inspectionmeasurements from DB if they already exist, and creates them if they don't already 
+        </member>
+        <member name="T:DigitalInspectionNetCore21.Services.Core.Interfaces.IChecklistItemRepository">
+            <summary>
+            Used for facading query logic for checklist items
+            </summary>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Services.Core.Interfaces.IChecklistItemRepository.GetAll">
+            <summary>
+            Gets all checklist items, sorted by name
+            </summary>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Services.Core.Interfaces.IChecklistItemRepository.GetById(System.Guid)">
+            <summary>
+            Gets checklist with fields sorted by name
+            </summary>
+            <remarks>
+            Includes relational properties
+            </remarks>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="T:DigitalInspectionNetCore21.Services.Core.Interfaces.ITagRepository">
+            <summary>
+            Used for facading query logic for tags
+            </summary>
+            <inheritdoc cref="T:DigitalInspectionNetCore21.Services.Core.Interfaces.ITagRepository"/>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Services.Core.Interfaces.ITagRepository.GetAll">
+            <summary>
+            Gets all tags, sorted by name
+            </summary>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Services.Core.Interfaces.ITagRepository.GetAllCustomerVisible">
+            <summary>
+            Gets all customer visible tags, sorted by name
+            </summary>
+        </member>
+        <member name="M:DigitalInspectionNetCore21.Services.Core.Interfaces.ITagRepository.GetAllEmployeeVisible">
+            <summary>
+            Gets all employee visible tags, sorted by name
+            </summary>
+        </member>
+        <member name="T:DigitalInspectionNetCore21.Services.Core.TagRepository">
+            <inheritdoc cref="T:DigitalInspectionNetCore21.Services.Core.Interfaces.ITagRepository"/>
+        </member>
+        <member name="T:DigitalInspectionNetCore21.Utils.DateTimeUtils">
+            All dates we handle for now are serialized on the server in UTC.
+            We will always display them in views in local time, which is either
+            -6 CST or -5 CDT
+             
+             https://github.com/scaspers/D3-API/issues/4#issuecomment-309319000
+        </member>
+    </members>
+</doc>

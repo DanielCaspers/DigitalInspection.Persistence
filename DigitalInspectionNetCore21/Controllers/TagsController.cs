@@ -22,6 +22,10 @@ namespace DigitalInspectionNetCore21.Controllers
 			_tagRepository = tagRepository;
 		}
 
+		/// <summary>
+		/// Get all tags
+		/// </summary>
+		/// <response code="200">Ok</response>
 		[HttpGet("")]
 		public ActionResult<IEnumerable<TagResponse>> GetAll()
 		{
@@ -29,6 +33,10 @@ namespace DigitalInspectionNetCore21.Controllers
 			return GetTagsResponse(tags);
 		}
 
+		/// <summary>
+		/// Get all tags which are visible to customers
+		/// </summary>
+		/// <response code="200">Ok</response>
 		[HttpGet("VisibleToCustomer")]
 		public ActionResult<IEnumerable<TagResponse>> GetAllCustomerVisible()
 		{
@@ -36,6 +44,10 @@ namespace DigitalInspectionNetCore21.Controllers
 			return GetTagsResponse(tags);
 		}
 
+		/// <summary>
+		/// Get all tags which are visible to employees
+		/// </summary>
+		/// <response code="200">Ok</response>
 		[HttpGet("VisibleToEmployee")]
 		public ActionResult<IEnumerable<TagResponse>> GetAllEmployeeVisible()
 		{
@@ -43,6 +55,12 @@ namespace DigitalInspectionNetCore21.Controllers
 			return GetTagsResponse(tags);
 		}
 
+		/// <summary>
+		/// Get tag
+		/// </summary>
+		/// <param name="id"></param>
+		/// <response code="200">Ok</response>
+		/// <response code="404">Not found</response>
 		[HttpGet("{id}")]
 		public ActionResult<TagResponse> GetById(Guid id)
 		{
@@ -58,6 +76,17 @@ namespace DigitalInspectionNetCore21.Controllers
 			return Json(tagResponse);
 		}
 
+		/// <summary>
+		/// Create a tag for grouping checklist items under
+		/// </summary>
+		/// <remarks>
+		/// The tags feature has multiple uses
+		/// - Allow employees to complete inspections by looking through the entire list, 
+		/// or by filtering down to relevant tags
+		/// - Use tag visibility to remove certain items from being sent out in an inspection
+		/// </remarks>
+		/// <param name="request">Tag description</param>
+		/// <response code="201">Created</response>
 		[HttpPost("")]
 		public ActionResult<TagResponse> Create([FromBody]AddTagViewModel request)
 		{
@@ -77,6 +106,13 @@ namespace DigitalInspectionNetCore21.Controllers
 			return Created(createdUri, tagResponse);
 		}
 
+		/// <summary>
+		///	Update a tag
+		/// </summary>
+		/// <param name="id"></param>
+		/// <param name="tag">Tag description</param>
+		/// <response code="204">No content</response>
+		/// <response code="404">Tag not found</response>
 		[HttpPut("{id}")]
 		public ActionResult Update(Guid id, [FromBody]AddTagViewModel tag)
 		{
@@ -95,6 +131,15 @@ namespace DigitalInspectionNetCore21.Controllers
 			return NoContent();
 		}
 
+		/// <summary>
+		/// Delete a tag
+		/// </summary>
+		/// <remarks>
+		/// Tags only serve as metadata for checklist items. 
+		/// Thus, deleting them has no impact on inspections reports.
+		/// </remarks>
+		/// <param name="id"></param>
+		/// <response code="204">No content</response>
 		[HttpDelete("{id}")]
 		public NoContentResult Delete(Guid id)
 		{

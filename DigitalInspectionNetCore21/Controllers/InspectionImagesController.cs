@@ -17,6 +17,14 @@ namespace DigitalInspectionNetCore21.Controllers
 
 		private static readonly string ImageDirectory = "Inspections";
 
+		/// <summary>
+		/// Add an image to an inspection item
+		/// </summary>
+		/// <param name="inspectionItemId">Id of the inspection item to add the image to</param>
+		/// <param name="image">The image to attach</param>
+		/// <response code="204">No content</response>
+		/// <response code="404">Inspection item not found</response>
+		/// <response code="500">Unable to save image</response>
 		[HttpPost("")]
 		public ActionResult Upload(Guid inspectionItemId, IFormFile image)
 		{
@@ -39,6 +47,14 @@ namespace DigitalInspectionNetCore21.Controllers
 				StatusCode(500);
 		}
 
+		/// <summary>
+		/// Delete an image from an inspection item
+		/// </summary>
+		/// <param name="inspectionItemId">Id of the inspection item to remove the image from</param>
+		/// <param name="imageId">The id of the image to remove</param>
+		/// <response code="204">No content</response>
+		/// <response code="404">Inspection item not found, or image not found to belong to inspection item</response>
+		/// <response code="500">Unable to delete image</response>
 		[HttpDelete("{imageId}")]
 		public ActionResult Delete(Guid inspectionItemId, Guid imageId)
 		{
@@ -63,6 +79,18 @@ namespace DigitalInspectionNetCore21.Controllers
 				StatusCode(500);
 		}
 
+		/// <summary>
+		/// Set the visibility of the image
+		/// </summary>
+		/// <param name="inspectionItemId">Id of the inspection item the image belongs to</param>
+		/// <param name="imageId">Id of the image to change the visibility of</param>
+		/// <param name="isVisibleToCustomer">
+		/// If true, this image will be displayed in the inspection report.
+		/// If false, it will be hidden from the inspection report, making it for internal use only.
+		/// </param>
+		/// <response code="204">No content</response>
+		/// <response code="404">Inspection item not found, or image not found to belong to inspection item</response>
+		/// <response code="500">Unable to update visibility</response>
 		[HttpPut("{imageId}/Visibility")]
 		public ActionResult SetCustomerVisibility(Guid inspectionItemId, Guid imageId, [FromBody] bool isVisibleToCustomer)
 		{

@@ -10,8 +10,6 @@ namespace DigitalInspectionNetCore21.Models.Web.Inspections
 
 		public Guid InspectionId { get; set; }
 
-		// YOU ARE THE PROBLEM, BECAUSE YOU BRIDGE THE GAP
-		// In the UI, I will need to ensure ChecklistItems needed are available on the InspectionResponse, not the InsecptionItem
 		public Guid ChecklistItemId { get; set; }
 
 		public IList<InspectionMeasurementResponse> InspectionMeasurements { get; set; }

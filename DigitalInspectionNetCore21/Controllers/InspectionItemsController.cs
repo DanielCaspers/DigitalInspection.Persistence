@@ -21,6 +21,12 @@ namespace DigitalInspectionNetCore21.Controllers
 		{
 		}
 
+		/// <summary>
+		/// Get an inspection item
+		/// </summary>
+		/// <param name="id">Id of the inspection item</param>
+		/// <response code="200">Ok</response>
+		/// <response code="404">Not found</response>
 		[HttpGet("")]
 		public ActionResult<InspectionItemResponse> GetById(Guid id)
 		{
@@ -37,6 +43,14 @@ namespace DigitalInspectionNetCore21.Controllers
 			}
 		}
 
+		/// <summary>
+		/// Mark the condition of an inspection item
+		/// </summary>
+		/// <param name="id">Id of the inspection item</param>
+		/// <param name="inspectionItemCondition">Condition of the item being inspected</param>
+		/// <response code="204">No content</response>
+		/// <response code="404">Inspection item not found</response>
+		/// <response code="500">Unable to update condition</response>
 		[HttpPut("Condition")]
 		public ActionResult SetCondition(Guid id, RecommendedServiceSeverity inspectionItemCondition)
 		{
@@ -52,6 +66,14 @@ namespace DigitalInspectionNetCore21.Controllers
 				StatusCode(500);
 		}
 
+		/// <summary>
+		/// Mark the applicable canned responses for an inspection item
+		/// </summary>
+		/// <param name="id">Id of the inspection item</param>
+		/// <param name="selectedCannedResponseIds">Ids of the canned responses which apply to this inspection item</param>
+		/// <response code="204">No content</response>
+		/// <response code="404">Inspection item not found</response>
+		/// <response code="500">Unable to set the applicable canned responses</response>
 		[HttpPut("CannedResponses")]
 		public ActionResult SetCannedResponses(Guid id, [FromBody] IEnumerable<Guid> selectedCannedResponseIds)
 		{
@@ -70,6 +92,14 @@ namespace DigitalInspectionNetCore21.Controllers
 				StatusCode(500);
 		}
 
+		/// <summary>
+		/// Mark whether or not this inspection item addresses a customer's concern, or reason, for requesting the inspection
+		/// </summary>
+		/// <param name="id">Id of the inspection item</param>
+		/// <param name="isCustomerConcern">Boolean indicating whether or not this is of concern to the customer</param>
+		/// <response code="204">No content</response>
+		/// <response code="404">Inspection item not found</response>
+		/// <response code="500">Unable to update the customer's concern</response>
 		[HttpPut("CustomerConcern")]
 		public ActionResult SetCustomerConcern(Guid id, [FromBody] bool isCustomerConcern)
 		{
@@ -85,6 +115,14 @@ namespace DigitalInspectionNetCore21.Controllers
 				StatusCode(500);
 		}
 
+		/// <summary>
+		/// Add or update custom notes to be shared with the customer regarding any pertinent details
+		/// </summary>
+		/// <param name="id">Id of the inspection item</param>
+		/// <param name="notes">Notes capturing inspection item observations</param>
+		/// <response code="204">No content</response>
+		/// <response code="404">Inspection item not found</response>
+		/// <response code="500">Unable to update the inspection item notes</response>
 		[HttpPut("Notes")]
 		public ActionResult SetItemNotes(Guid id, [FromBody] string notes)
 		{
@@ -100,6 +138,14 @@ namespace DigitalInspectionNetCore21.Controllers
 				StatusCode(500);
 		}
 
+		/// <summary>
+		/// Update measurements to be collected with their values
+		/// </summary>
+		/// <param name="id">Id of the inspection item</param>
+		/// <param name="measurementUpdates">Key value pairs of ids of the measurements being collected, and their values</param>
+		/// <response code="204">No content</response>
+		/// <response code="404">Inspection item not found</response>
+		/// <response code="500">Unable to update the inspection item's measurement values</response>
 		[HttpPut("Measurements")]
 		public ActionResult SetMeasurements(Guid id, [FromBody] IEnumerable<UpdateInspectionMeasurementRequest> measurementUpdates)
 		{
