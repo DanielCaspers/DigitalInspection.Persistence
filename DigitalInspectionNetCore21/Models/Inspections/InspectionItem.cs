@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using DigitalInspectionNetCore21.Models.Inspections.Joins;
-using DigitalInspectionNetCore21.Models.Orders;
 
 namespace DigitalInspectionNetCore21.Models.Inspections
 {
@@ -18,7 +17,7 @@ namespace DigitalInspectionNetCore21.Models.Inspections
 
 		public string Note { get; set; }
 
-		public RecommendedServiceSeverity Condition { get; set; }
+		public InspectionItemCondition Condition { get; set; }
 
 		public virtual IList<InspectionItemCannedResponse> InspectionItemCannedResponses { get; set; } = new List<InspectionItemCannedResponse>();
 

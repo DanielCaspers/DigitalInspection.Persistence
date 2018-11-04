@@ -6,7 +6,6 @@ using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Models.Inspections;
 using DigitalInspectionNetCore21.Models.Inspections.Joins;
 using DigitalInspectionNetCore21.Models.Inspections.Reports;
-using DigitalInspectionNetCore21.Models.Orders;
 using DigitalInspectionNetCore21.Models.Web.Inspections;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -76,7 +75,7 @@ namespace DigitalInspectionNetCore21.Services.Core
 			if (!includeUnknown)
 			{
 				// Only show inspection items which have had a marked condition
-				inspectionItems = inspectionItems.Where(ii => ii.Condition != RecommendedServiceSeverity.UNKNOWN).ToList();
+				inspectionItems = inspectionItems.Where(ii => ii.Condition != InspectionItemCondition.UNKNOWN).ToList();
 			}
 
 			if (grouped)
@@ -114,7 +113,7 @@ namespace DigitalInspectionNetCore21.Services.Core
 		public static bool UpdateInspectionItemCondition(
 			ApplicationDbContext ctx,
 			InspectionItem inspectionItem,
-			RecommendedServiceSeverity inspectionItemCondition)
+			InspectionItemCondition inspectionItemCondition)
 		{
 			// Only change condition and canned response if different from previous condition
 			if (inspectionItem.Condition == inspectionItemCondition)

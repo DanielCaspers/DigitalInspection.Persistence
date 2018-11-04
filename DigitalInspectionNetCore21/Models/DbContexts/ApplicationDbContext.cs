@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using DigitalInspectionNetCore21.Models.Inspections;
 using DigitalInspectionNetCore21.Models.Inspections.Joins;
-using DigitalInspectionNetCore21.Models.Orders;
 using Microsoft.EntityFrameworkCore;
 
 namespace DigitalInspectionNetCore21.Models.DbContexts
@@ -232,22 +231,22 @@ namespace DigitalInspectionNetCore21.Models.DbContexts
 				    v => ConvertToRecommendServiceSeverities(v));
 	    }
 
-		private string ConvertToString(IList<RecommendedServiceSeverity> levelsOfConcern)
+		private string ConvertToString(IList<InspectionItemCondition> levelsOfConcern)
 	    {
 		    return string.Join(",", levelsOfConcern);
 		}
 
-	    private IList<RecommendedServiceSeverity> ConvertToRecommendServiceSeverities(string levelsOfConcernInDb)
+	    private IList<InspectionItemCondition> ConvertToRecommendServiceSeverities(string levelsOfConcernInDb)
 	    {
 			if (string.IsNullOrEmpty(levelsOfConcernInDb))
 			{
-				return new List<RecommendedServiceSeverity>();
+				return new List<InspectionItemCondition>();
 			}
 			else
 			{
 				IList<string> stringList = levelsOfConcernInDb.Split(',').ToList();
 				return stringList
-					.Select(s => (RecommendedServiceSeverity)Enum.Parse(typeof(RecommendedServiceSeverity), s))
+					.Select(s => (InspectionItemCondition)Enum.Parse(typeof(InspectionItemCondition), s))
 					.ToList();
 			}
 		}

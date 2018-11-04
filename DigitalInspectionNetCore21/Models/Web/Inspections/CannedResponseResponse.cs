@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using DigitalInspectionNetCore21.Models.Orders;
 
 namespace DigitalInspectionNetCore21.Models.Web.Inspections
 {
@@ -39,6 +38,6 @@ namespace DigitalInspectionNetCore21.Models.Web.Inspections
 		/// <summary>
 		/// A list of conditions, or severites, associated with this particular problem on the item being inspected.
 		/// </summary>
-		public IList<RecommendedServiceSeverity> LevelsOfConcern { get; set; }
+		public IList<Condition> LevelsOfConcern { get; set; }
 	}
 }

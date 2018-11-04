@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using DigitalInspectionNetCore21.Models.Web.Orders;
 
 namespace DigitalInspectionNetCore21.Models.Web.Inspections
 {
@@ -16,7 +15,7 @@ namespace DigitalInspectionNetCore21.Models.Web.Inspections
 
 		public string Note { get; set; }
 
-		public RecommendedServiceSeverity Condition { get; set; }
+		public Condition Condition { get; set; }
 
 		public IList<Guid> CannedResponseIds { get; set; }
 

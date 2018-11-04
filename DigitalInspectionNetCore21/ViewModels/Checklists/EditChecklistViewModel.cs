@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using DigitalInspectionNetCore21.Models.Web.Inspections;
-using DigitalInspectionNetCore21.ViewModels.Base;
 
 namespace DigitalInspectionNetCore21.ViewModels.Checklists
 {
-	public class EditChecklistViewModel: BaseChecklistsViewModel
+	public class EditChecklistViewModel
 	{
 		public ChecklistSummaryResponse Checklist { get; set; }
 		

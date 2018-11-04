@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using AutoMapper;
-using DigitalInspectionNetCore21.Models.Orders;
 using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Models.Web.Inspections;
 using DigitalInspectionNetCore21.Services.Core;
@@ -49,7 +48,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// Mark the condition of an inspection item
 		/// </summary>
 		/// <param name="id">Id of the inspection item</param>
-		/// <param name="inspectionItemCondition">Condition of the item being inspected</param>
+		/// <param name="condition">Condition of the item being inspected</param>
 		/// <response code="204">No content</response>
 		/// <response code="404">Inspection item not found</response>
 		/// <response code="500">Unable to update condition</response>
@@ -57,7 +56,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		[ProducesResponseType(204)]
 		[ProducesResponseType(404)]
 		[ProducesResponseType(500)]
-		public ActionResult SetCondition(Guid id, RecommendedServiceSeverity inspectionItemCondition)
+		public ActionResult SetCondition(Guid id, Condition condition)
 		{
 			var inspectionItemInDb = _context.InspectionItems.SingleOrDefault(item => item.Id == id);
 
@@ -66,7 +65,7 @@ namespace DigitalInspectionNetCore21.Controllers
 				return NotFound();
 			}
 
-			return InspectionService.UpdateInspectionItemCondition(_context, inspectionItemInDb, inspectionItemCondition) ?
+			return InspectionService.UpdateInspectionItemCondition(_context, inspectionItemInDb, (Models.Inspections.InspectionItemCondition) condition) ?
 				NoContent() : 
 				StatusCode(500);
 		}

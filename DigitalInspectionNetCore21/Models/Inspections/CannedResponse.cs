@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using DigitalInspectionNetCore21.Models.Inspections.Joins;
-using DigitalInspectionNetCore21.Models.Orders;
 
 namespace DigitalInspectionNetCore21.Models.Inspections
 {
@@ -34,6 +33,6 @@ namespace DigitalInspectionNetCore21.Models.Inspections
 		[DisplayName("Levels of Concern *")]
 		[Required(ErrorMessage = "One or more levels of concern are required")]
 		[Column("LevelsOfConcernInDb")]
-		public IList<RecommendedServiceSeverity> LevelsOfConcern { get; set; } = new List<RecommendedServiceSeverity>();
+		public IList<InspectionItemCondition> LevelsOfConcern { get; set; } = new List<InspectionItemCondition>();
 	}
 }

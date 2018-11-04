@@ -196,12 +196,12 @@
             <response code="200">Ok</response>
             <response code="404">Not found</response>
         </member>
-        <member name="M:DigitalInspectionNetCore21.Controllers.InspectionItemsController.SetCondition(System.Guid,DigitalInspectionNetCore21.Models.Orders.RecommendedServiceSeverity)">
+        <member name="M:DigitalInspectionNetCore21.Controllers.InspectionItemsController.SetCondition(System.Guid,DigitalInspectionNetCore21.Models.Web.Inspections.Condition)">
             <summary>
             Mark the condition of an inspection item
             </summary>
             <param name="id">Id of the inspection item</param>
-            <param name="inspectionItemCondition">Condition of the item being inspected</param>
+            <param name="condition">Condition of the item being inspected</param>
             <response code="204">No content</response>
             <response code="404">Inspection item not found</response>
             <response code="500">Unable to update condition</response>

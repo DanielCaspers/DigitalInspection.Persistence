@@ -1,7 +1,7 @@
 ﻿
-namespace DigitalInspectionNetCore21.Models.Web.Orders
+namespace DigitalInspectionNetCore21.Models.Web.Inspections
 {
-	public enum RecommendedServiceSeverity
+	public enum Condition
 	{
 		// The unset value of the enum should be 0, so that this is also the default constructed value
 		// We need this to remain this way so that we can filter these out from the customer's view

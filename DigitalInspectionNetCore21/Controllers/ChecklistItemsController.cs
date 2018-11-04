@@ -197,7 +197,7 @@ namespace DigitalInspectionNetCore21.Controllers
 				if (cannedResponseInDb != null)
 				{
 					cannedResponseInDb.Response = cannedResponseInVm.Response;
-					cannedResponseInDb.LevelsOfConcern = cannedResponseInVm.LevelsOfConcern;
+					cannedResponseInDb.LevelsOfConcern =  (IList<InspectionItemCondition>) cannedResponseInVm.LevelsOfConcern.Select(condition => (InspectionItemCondition)condition);
 					cannedResponseInDb.Url = cannedResponseInVm.Url;
 					cannedResponseInDb.Description = cannedResponseInVm.Description;
 				}

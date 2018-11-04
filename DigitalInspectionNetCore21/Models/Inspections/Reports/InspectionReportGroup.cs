@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using DigitalInspectionNetCore21.Models.Orders;
 
 namespace DigitalInspectionNetCore21.Models.Inspections.Reports
 {
@@ -8,7 +7,7 @@ namespace DigitalInspectionNetCore21.Models.Inspections.Reports
 	{
 		public string Name { get; set; }
 
-		public RecommendedServiceSeverity Condition { get; set; }
+		public InspectionItemCondition Condition { get; set; }
 
 		public IEnumerable<InspectionReportItem> Items { get; set; }
 

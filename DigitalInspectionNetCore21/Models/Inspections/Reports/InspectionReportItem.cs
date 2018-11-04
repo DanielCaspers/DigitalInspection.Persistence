@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using DigitalInspectionNetCore21.Models.Orders;
 
 namespace DigitalInspectionNetCore21.Models.Inspections.Reports
 {
@@ -9,7 +8,7 @@ namespace DigitalInspectionNetCore21.Models.Inspections.Reports
 	{
 		public Guid InspectionItemId { get; set; }
 
-		public RecommendedServiceSeverity Condition { get; set; }
+		public InspectionItemCondition Condition { get; set; }
 
 		public string Note { get; set; }
 
