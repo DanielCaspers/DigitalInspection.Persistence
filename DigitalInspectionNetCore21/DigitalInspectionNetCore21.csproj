@@ -6,7 +6,8 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>C:\Users\Antares\Documents\GitHub\DigitalInspectionNetCore21\DigitalInspectionNetCore21\DigitalInspectionNetCore21.xml</DocumentationFile>
+	<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	<DocumentationFile>C:\Users\Antares\Documents\GitHub\DigitalInspectionNetCore21\DigitalInspectionNetCore21\DigitalInspectionNetCore21.xml</DocumentationFile>
     <NoWarn>1701;1702;1591</NoWarn>
   </PropertyGroup>
 
