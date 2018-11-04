@@ -32,6 +32,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// </summary>
 		/// <response code="200">Ok</response>
 		[HttpGet("")]
+		[ProducesResponseType(200)]
 		public ActionResult<IEnumerable<ChecklistItemSummaryResponse>> GetAll()
 		{
 			var checklistItems = _checklistItemRepository.GetAll().ToList();
@@ -48,6 +49,8 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="200">Ok</response>
 		/// <response code="404">Not found</response>
 		[HttpGet("{id}")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(404)]
 		public ActionResult<ChecklistItemResponse> GetById(Guid id)
 		{
 			var checklistItem = _checklistItemRepository.GetById(id);
@@ -71,6 +74,8 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="404">Not found</response>
 		[Obsolete("Use only for Legacy .NET Framework App")]
 		[HttpGet("{id}/Edit")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(404)]
 		public ActionResult<EditChecklistItemViewModel> EditById(Guid id)
 		{
 			var checklistItem = _checklistItemRepository.GetById(id);
@@ -99,6 +104,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <param name="request">Constraints to impose on the unit of inspection to be performed</param>
 		/// <response code="201">Created</response>
 		[HttpPost("")]
+		[ProducesResponseType(201)]
 		public ActionResult<ChecklistItemResponse> Create([FromBody]AddChecklistItemViewModel request)
 		{
 			var checklistItem = new ChecklistItem()
@@ -134,6 +140,8 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="204">No content</response>
 		/// <response code="404">Checklist item not found</response>
 		[HttpPut("{id}")]
+		[ProducesResponseType(204)]
+		[ProducesResponseType(404)]
 		public ActionResult Update(Guid id, [FromBody]EditChecklistItemViewModel request)
 		{
 			// TODO Determine if Find() will help with getting rid of context attach.
@@ -223,6 +231,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <param name="id"></param>
 		/// <response code="204">No content</response>
 		[HttpDelete("{id}")]
+		[ProducesResponseType(204)]
 		public NoContentResult Delete(Guid id)
 		{
 			var checklistItemInDb = _context.ChecklistItems
@@ -258,6 +267,8 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="200">Ok</response>
 		/// <response code="404">Checklist item not found</response>
 		[HttpPost("{id}/Measurements")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(404)]
 		public ActionResult AddMeasurement(Guid id)
 		{
 			var checklistItem = _context.ChecklistItems.Find(id);
@@ -284,6 +295,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <param name="checklistItemId">The id of checklist item which the measurement belongs to</param>
 		/// <response code="204">No content</response>
 		[HttpDelete("{checklistItemId}/Measurements/{measurementId}")]
+		[ProducesResponseType(204)]
 		public ActionResult DeleteMeasurement(Guid measurementId, Guid checklistItemId)
 		{
 			var checklistItemInDb = _context.ChecklistItems
@@ -312,6 +324,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="204">No content</response>
 		[Obsolete("Clients should provide checklistItemId")]
 		[HttpDelete("Measurements/{measurementId}")]
+		[ProducesResponseType(204)]
 		public ActionResult DeleteMeasurement(Guid measurementId)
 		{
 			var checklistItems = _context.ChecklistItems
@@ -342,6 +355,8 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="200">Ok</response>
 		/// <response code="404">Checklist item not found</response>
 		[HttpPost("{id}/CannedResponses")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(404)]
 		public ActionResult AddCannedResponse(Guid id)
 		{
 			var checklistItemInDb = _context.ChecklistItems.Find(id);
@@ -371,6 +386,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <param name="checklistItemId">The id of checklist item which the canned response belongs to</param>
 		/// <response code="204">No content</response>
 		[HttpDelete("{checklistItemId}/CannedResponses/{cannedResponseId}")]
+		[ProducesResponseType(204)]
 		public ActionResult DeleteCannedResponse(Guid checklistItemId, Guid cannedResponseId)
 		{
 			var checklistItemInDb = _context.ChecklistItems
@@ -399,6 +415,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="204">No content</response>
 		[Obsolete("Clients should provide checklistItemId")]
 		[HttpDelete("CannedResponses/{cannedResponseId}")]
+		[ProducesResponseType(204)]
 		public ActionResult DeleteCannedResponse(Guid cannedResponseId)
 		{
 			var checklistItemInDb = _context.ChecklistItems

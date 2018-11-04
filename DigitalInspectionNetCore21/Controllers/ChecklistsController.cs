@@ -24,7 +24,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// </summary>
 		/// <response code="200">Ok</response>
 		[HttpGet("")]
-		// TODO DJC Update this repository pattern to be an more forgiving to different model types, since I'm using summary models here
+		[ProducesResponseType(200)]
 		public ActionResult<IEnumerable<ChecklistSummaryResponse>> GetAll()
 		{
 			var checklists = _context.Checklists
@@ -44,6 +44,8 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="200">Ok</response>
 		/// <response code="404">Not found</response>
 		[HttpGet("{id}")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(404)]
 		public ActionResult<ChecklistResponse> GetById(Guid id)
 		{
 			var checklist = _context.Checklists
@@ -70,6 +72,8 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="404">Not found</response>
 		[Obsolete("Use only for Legacy .NET Framework App")]
 		[HttpGet("{id}/Edit")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(404)]
 		public ActionResult<EditChecklistViewModel> EditById(Guid id)
 		{
 			var checklist = _context.Checklists
@@ -102,6 +106,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// </param>
 		/// <response code="201">Created</response>
 		[HttpPost("")]
+		[ProducesResponseType(201)]
 		public ActionResult<ChecklistResponse> Create([FromBody]AddChecklistViewModel request)
 		{
 			var checklist = new Checklist
@@ -127,6 +132,8 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="204">No content</response>
 		/// <response code="404">Checklist item not found</response>
 		[HttpPut("{id}")]
+		[ProducesResponseType(204)]
+		[ProducesResponseType(404)]
 		//https://docs.microsoft.com/en-us/aspnet/core/mvc/models/file-uploads?view=aspnetcore-2.1
 		public ActionResult Update(Guid id, [FromBody]EditChecklistViewModel request)
 		{
@@ -181,6 +188,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <param name="id"></param>
 		/// <response code="204">No content</response>
 		[HttpDelete("{id}")]
+		[ProducesResponseType(204)]
 		public NoContentResult Delete(Guid id)
 		{
 			var checklist = _context.Checklists.Find(id);

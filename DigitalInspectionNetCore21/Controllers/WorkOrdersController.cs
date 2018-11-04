@@ -28,6 +28,8 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="200">Ok</response>
 		/// <response code="404">Not found</response>
 		[HttpGet("InspectionId")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(404)]
 		public ActionResult InspectionIdForOrder(string id)
 		{
 			var inspectionId = _context.Inspections
@@ -58,6 +60,8 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="200">Ok</response>
 		/// <response code="404">Not found</response>
 		[HttpGet("Inspection")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(404)]
 		public ActionResult ReportForOrder(string id, bool grouped = false, bool includeUnknown = false)
 		{
 			var imageBaseUrl = $"{this.Request.Scheme}://{this.Request.Host}";
@@ -89,6 +93,8 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="204">No content</response>
 		/// <response code="500">Unable to delete some part of the inspection</response>
 		[HttpDelete("Inspection")]
+		[ProducesResponseType(204)]
+		[ProducesResponseType(500)]
 		public ActionResult Delete(string id)
 		{
 			var inspection = _context.Inspections.SingleOrDefault(i => i.WorkOrderId == id);

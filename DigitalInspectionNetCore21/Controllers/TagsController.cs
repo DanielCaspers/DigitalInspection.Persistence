@@ -28,6 +28,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// </summary>
 		/// <response code="200">Ok</response>
 		[HttpGet("")]
+		[ProducesResponseType(200)]
 		public ActionResult<IEnumerable<TagResponse>> GetAll()
 		{
 			var tags = _tagRepository.GetAll().ToList();
@@ -39,6 +40,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// </summary>
 		/// <response code="200">Ok</response>
 		[HttpGet("VisibleToCustomer")]
+		[ProducesResponseType(200)]
 		public ActionResult<IEnumerable<TagResponse>> GetAllCustomerVisible()
 		{
 			var tags = _tagRepository.GetAllCustomerVisible().ToList();
@@ -50,6 +52,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// </summary>
 		/// <response code="200">Ok</response>
 		[HttpGet("VisibleToEmployee")]
+		[ProducesResponseType(200)]
 		public ActionResult<IEnumerable<TagResponse>> GetAllEmployeeVisible()
 		{
 			var tags = _tagRepository.GetAllEmployeeVisible().ToList();
@@ -63,6 +66,8 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="200">Ok</response>
 		/// <response code="404">Not found</response>
 		[HttpGet("{id}")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(404)]
 		public ActionResult<TagResponse> GetById(Guid id)
 		{
 			var tag = _context.Tags.Find(id);
@@ -89,6 +94,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <param name="request">Tag description</param>
 		/// <response code="201">Created</response>
 		[HttpPost("")]
+		[ProducesResponseType(201)]
 		public ActionResult<TagResponse> Create([FromBody]AddTagViewModel request)
 		{
 			var tag = new Models.Inspections.Tag
@@ -115,6 +121,8 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="204">No content</response>
 		/// <response code="404">Tag not found</response>
 		[HttpPut("{id}")]
+		[ProducesResponseType(204)]
+		[ProducesResponseType(404)]
 		public ActionResult Update(Guid id, [FromBody]AddTagViewModel tag)
 		{
 			var tagInDb = _context.Tags.SingleOrDefault(t => t.Id == id);
@@ -142,6 +150,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <param name="id"></param>
 		/// <response code="204">No content</response>
 		[HttpDelete("{id}")]
+		[ProducesResponseType(204)]
 		public NoContentResult Delete(Guid id)
 		{
 			var tagInDb = _context.Tags.Find(id);

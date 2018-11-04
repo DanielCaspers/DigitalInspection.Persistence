@@ -28,6 +28,8 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="200">Ok</response>
 		/// <response code="404">Not found</response>
 		[HttpGet("")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(404)]
 		public ActionResult<InspectionItemResponse> GetById(Guid id)
 		{
 			var inspectionItem = _context.InspectionItems.SingleOrDefault(ii => ii.Id == id);
@@ -52,6 +54,9 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="404">Inspection item not found</response>
 		/// <response code="500">Unable to update condition</response>
 		[HttpPut("Condition")]
+		[ProducesResponseType(204)]
+		[ProducesResponseType(404)]
+		[ProducesResponseType(500)]
 		public ActionResult SetCondition(Guid id, RecommendedServiceSeverity inspectionItemCondition)
 		{
 			var inspectionItemInDb = _context.InspectionItems.SingleOrDefault(item => item.Id == id);
@@ -75,6 +80,9 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="404">Inspection item not found</response>
 		/// <response code="500">Unable to set the applicable canned responses</response>
 		[HttpPut("CannedResponses")]
+		[ProducesResponseType(204)]
+		[ProducesResponseType(404)]
+		[ProducesResponseType(500)]
 		public ActionResult SetCannedResponses(Guid id, [FromBody] IEnumerable<Guid> selectedCannedResponseIds)
 		{
 			var inspectionItemInDb = _context.InspectionItems
@@ -101,6 +109,9 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="404">Inspection item not found</response>
 		/// <response code="500">Unable to update the customer's concern</response>
 		[HttpPut("CustomerConcern")]
+		[ProducesResponseType(204)]
+		[ProducesResponseType(404)]
+		[ProducesResponseType(500)]
 		public ActionResult SetCustomerConcern(Guid id, [FromBody] bool isCustomerConcern)
 		{
 			var inspectionItemInDb = _context.InspectionItems.SingleOrDefault(item => item.Id == id);
@@ -124,6 +135,9 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="404">Inspection item not found</response>
 		/// <response code="500">Unable to update the inspection item notes</response>
 		[HttpPut("Notes")]
+		[ProducesResponseType(204)]
+		[ProducesResponseType(404)]
+		[ProducesResponseType(500)]
 		public ActionResult SetItemNotes(Guid id, [FromBody] string notes)
 		{
 			var inspectionItemInDb = _context.InspectionItems.SingleOrDefault(item => item.Id == id);
@@ -147,6 +161,9 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="404">Inspection item not found</response>
 		/// <response code="500">Unable to update the inspection item's measurement values</response>
 		[HttpPut("Measurements")]
+		[ProducesResponseType(204)]
+		[ProducesResponseType(404)]
+		[ProducesResponseType(500)]
 		public ActionResult SetMeasurements(Guid id, [FromBody] IEnumerable<UpdateInspectionMeasurementRequest> measurementUpdates)
 		{
 			var inspectionItemInDb = _context.InspectionItems.SingleOrDefault(item => item.Id == id);

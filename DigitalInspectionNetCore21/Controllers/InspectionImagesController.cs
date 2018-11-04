@@ -26,6 +26,9 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="404">Inspection item not found</response>
 		/// <response code="500">Unable to save image</response>
 		[HttpPost("")]
+		[ProducesResponseType(204)]
+		[ProducesResponseType(404)]
+		[ProducesResponseType(500)]
 		public ActionResult Upload(Guid inspectionItemId, IFormFile image)
 		{
 			var inspectionItemInDb = _context.InspectionItems
@@ -56,6 +59,9 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="404">Inspection item not found, or image not found to belong to inspection item</response>
 		/// <response code="500">Unable to delete image</response>
 		[HttpDelete("{imageId}")]
+		[ProducesResponseType(204)]
+		[ProducesResponseType(404)]
+		[ProducesResponseType(500)]
 		public ActionResult Delete(Guid inspectionItemId, Guid imageId)
 		{
 			var image = _context.InspectionImages.SingleOrDefault(inspectionImage => inspectionImage.Id == imageId);
@@ -92,6 +98,9 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="404">Inspection item not found, or image not found to belong to inspection item</response>
 		/// <response code="500">Unable to update visibility</response>
 		[HttpPut("{imageId}/Visibility")]
+		[ProducesResponseType(204)]
+		[ProducesResponseType(404)]
+		[ProducesResponseType(500)]
 		public ActionResult SetCustomerVisibility(Guid inspectionItemId, Guid imageId, [FromBody] bool isVisibleToCustomer)
 		{
 			var inspectionItemInDb = _context.InspectionItems

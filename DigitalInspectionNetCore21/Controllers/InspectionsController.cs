@@ -2,7 +2,6 @@
 using System;
 using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Services.Core;
-using DigitalInspectionNetCore21.Services.Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,12 +10,10 @@ namespace DigitalInspectionNetCore21.Controllers
 	[Route("[controller]")]
 	public class InspectionsController : BaseController
 	{
-		private readonly ITagRepository _tagRepository;
 		private static readonly string IMAGE_DIRECTORY = "Inspections";
 
-		public InspectionsController(ApplicationDbContext db, ITagRepository tagRepository) : base(db)
+		public InspectionsController(ApplicationDbContext db) : base(db)
 		{
-			_tagRepository = tagRepository;
 		}
 
 		/// <summary>
@@ -38,6 +35,8 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="404">Not found</response>
 		[AllowAnonymous]
 		[HttpGet("{id}/Report")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(404)]
 		public JsonResult Report(Guid id, bool grouped = false, bool includeUnknown = false)
 		{
 			var imageBaseUrl = $"{this.Request.Scheme}://{this.Request.Host}";
@@ -57,6 +56,8 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="200">Ok</response>
 		/// <response code="404">Not found</response>
 		[HttpGet("{id}/WorkOrderId")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(404)]
 		public ActionResult WorkOrderId(Guid id)
 		{
 			var workOrderId = _context.Inspections
