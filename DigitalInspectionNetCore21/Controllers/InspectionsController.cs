@@ -1,15 +1,10 @@
 ﻿using System.Linq;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using DigitalInspectionNetCore21.Models.DbContexts;
-using DigitalInspectionNetCore21.Models.Inspections;
 using DigitalInspectionNetCore21.Services.Core;
 using DigitalInspectionNetCore21.Services.Core.Interfaces;
-using DigitalInspectionNetCore21.ViewModels.Inspections;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace DigitalInspectionNetCore21.Controllers
 {
@@ -69,34 +64,6 @@ namespace DigitalInspectionNetCore21.Controllers
 				?.WorkOrderId;
 
 			return workOrderId != null ? Json(workOrderId) : (ActionResult)NotFound();
-		}
-
-		[HttpPost]
-		// [AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
-		public PartialViewResult GetViewInspectionPhotosDialog(Guid inspectionItemId, Guid checklistItemId, Guid checklistId, Guid? tagId, string workOrderId)
-		{
-			var checklistItem = _context.ChecklistItems.SingleOrDefault(ci => ci.Id == checklistItemId);
-			var inspectionItem = _context.InspectionItems
-				.Include(ii => ii.InspectionImages)
-				.Single(item => item.Id == inspectionItemId);
-
-			IList<InspectionImage> images = inspectionItem.InspectionImages
-				.Select((image) =>
-				{
-					image.Title = Path.Combine($"/Uploads/{IMAGE_DIRECTORY}/{workOrderId}/{inspectionItemId.ToString()}/", image.Title);
-					return image;
-				})
-				.OrderBy(image => image.CreatedDate)
-				.ToList();
-
-			return PartialView("_ViewInspectionPhotosDialog", new ViewInspectionPhotosViewModel
-			{
-				ChecklistItem = checklistItem,
-				Images = images,
-				ChecklistId = checklistId,
-				TagId = tagId,
-				WorkOrderId = workOrderId
-			});
 		}
 	}
 }

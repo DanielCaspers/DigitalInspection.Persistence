@@ -514,7 +514,7 @@
         </member>
         <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionMeasurementResponse.InspectionItemId">
             <summary>
-            The id of theinspection item which the measurement corresponds to
+            The id of the inspection item which the measurement corresponds to
             </summary>
         </member>
         <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionMeasurementResponse.MeasurementId">
@@ -576,7 +576,16 @@
             by the most relevant sections to perform at any given time.
             </summary>
         </member>
-        <!-- Badly formed XML comment ignored for member "P:DigitalInspectionNetCore21.Models.Web.Inspections.TagResponse.Name" -->
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.TagResponse.Name">
+            <summary>
+            The display name of the tag. 
+            </summary>
+            <remarks>
+            This is both employee and customer facing.
+            For example, this can be used to divide an inspection into logical
+            subsystems or subsets (e.g. Exterior, Interior, Tires and Brakes, Drivetrain, etc)
+            </remarks>
+        </member>
         <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.TagResponse.IsVisibleToCustomer">
             <summary>
             Whether or not any the results of performing any associated checklist items

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DigitalInspectionNetCore21.Controllers.Interfaces;
 using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Models.Inspections;
 using DigitalInspectionNetCore21.Models.Inspections.Joins;
@@ -14,7 +15,7 @@ namespace DigitalInspectionNetCore21.Controllers
 {
 	//[AuthorizeRoles(Roles.Admin)]
 	[Route("[controller]")]
-	public class ChecklistsController : BaseController
+	public class ChecklistsController : BaseController, IChecklistsController
 	{
 		public ChecklistsController(ApplicationDbContext db) : base(db) { }
 

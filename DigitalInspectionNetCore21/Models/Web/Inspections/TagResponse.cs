@@ -19,7 +19,7 @@ namespace DigitalInspectionNetCore21.Models.Web.Inspections
 		/// <remarks>
 		/// This is both employee and customer facing.
 		/// For example, this can be used to divide an inspection into logical
-		/// subsystems or subsets (e.g. Exterior, Interior, Tires & Brakes, Drivetrain, etc)
+		/// subsystems or subsets (e.g. Exterior, Interior, Tires and Brakes, Drivetrain, etc)
 		/// </remarks>
 		public string Name { get; set; }
 

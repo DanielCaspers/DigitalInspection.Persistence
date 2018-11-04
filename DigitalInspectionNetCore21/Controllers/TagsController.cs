@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DigitalInspectionNetCore21.Controllers.Interfaces;
 using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Models.Inspections;
 using DigitalInspectionNetCore21.Models.Web.Inspections;
@@ -13,7 +14,7 @@ namespace DigitalInspectionNetCore21.Controllers
 {
 	//[AuthorizeRoles(Roles.Admin)]
 	[Route("[controller]")]
-	public class TagsController : BaseController
+	public class TagsController : BaseController, ITagsController
 	{
 		private readonly ITagRepository _tagRepository;
 

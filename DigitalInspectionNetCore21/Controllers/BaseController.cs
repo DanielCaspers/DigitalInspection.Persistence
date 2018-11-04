@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Security.Claims;
 using DigitalInspectionNetCore21.Models.DbContexts;
-using DigitalInspectionNetCore21.Services.Web;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DigitalInspectionNetCore21.Controllers
@@ -46,12 +45,5 @@ namespace DigitalInspectionNetCore21.Controllers
 		//		}
 		//	);
 		//}
-
-		// Retreives company number from cookie
-		protected string GetCompanyNumber()
-		{
-			Request.Cookies.TryGetValue(CookieConstants.CompanyCookieName, out var cookieContents);
-			return cookieContents;
-		}
 	}
 }

@@ -10,12 +10,13 @@ using DigitalInspectionNetCore21.Services.Core.Interfaces;
 using DigitalInspectionNetCore21.ViewModels.ChecklistItems;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using DigitalInspectionNetCore21.Controllers.Interfaces;
 
 namespace DigitalInspectionNetCore21.Controllers
 {
 	//[AuthorizeRoles(Roles.Admin)]
 	[Route("[controller]")]
-	public class ChecklistItemsController : BaseController
+	public class ChecklistItemsController : BaseController, IChecklistItemsController
 	{
 		private readonly IChecklistItemRepository _checklistItemRepository;
 		private readonly ITagRepository _tagRepository;

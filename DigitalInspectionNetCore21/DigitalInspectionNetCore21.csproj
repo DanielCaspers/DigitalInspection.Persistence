@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-    <TypeScriptToolsVersion>2.8</TypeScriptToolsVersion>
 	<UserSecretsId>32ccbfe4-d432-47e1-80b9-87d28c84cc83</UserSecretsId>
   </PropertyGroup>
 
@@ -10,26 +9,6 @@
     <DocumentationFile>C:\Users\Antares\Documents\GitHub\DigitalInspectionNetCore21\DigitalInspectionNetCore21\DigitalInspectionNetCore21.xml</DocumentationFile>
     <NoWarn>1701;1702;1591</NoWarn>
   </PropertyGroup>
-
-  <ItemGroup>
-    <_ContentIncludedByDefault Remove="wwwroot\css\Components\car-color-indicator.css" />
-    <_ContentIncludedByDefault Remove="wwwroot\css\Components\checkbox.css" />
-    <_ContentIncludedByDefault Remove="wwwroot\css\Components\colors.css" />
-    <_ContentIncludedByDefault Remove="wwwroot\css\Components\components.css" />
-    <_ContentIncludedByDefault Remove="wwwroot\css\Components\form.css" />
-    <_ContentIncludedByDefault Remove="wwwroot\css\Components\material-icons.css" />
-    <_ContentIncludedByDefault Remove="wwwroot\css\Components\multiselect.css" />
-    <_ContentIncludedByDefault Remove="wwwroot\css\Components\progress-bar.css" />
-    <_ContentIncludedByDefault Remove="wwwroot\css\Components\recommended-services.css" />
-    <_ContentIncludedByDefault Remove="wwwroot\css\Components\scrollable-tabs.css" />
-    <_ContentIncludedByDefault Remove="wwwroot\css\Components\tab-container.css" />
-    <_ContentIncludedByDefault Remove="wwwroot\css\Components\toast.css" />
-    <_ContentIncludedByDefault Remove="wwwroot\css\Components\toolbar.css" />
-    <_ContentIncludedByDefault Remove="wwwroot\css\Library\jquery.scrolling-tabs.css" />
-    <_ContentIncludedByDefault Remove="wwwroot\css\Views\inspection-table.css" />
-    <_ContentIncludedByDefault Remove="wwwroot\css\Views\layout.css" />
-    <_ContentIncludedByDefault Remove="wwwroot\css\Views\work-order-table.css" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="7.0.1" />
