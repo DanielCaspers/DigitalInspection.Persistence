@@ -5,11 +5,16 @@ using System.Linq;
 using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Models.Inspections;
 using DigitalInspectionNetCore21.Models.Inspections.Joins;
-using DigitalInspectionNetCore21.Models.Inspections.Reports;
+using DigitalInspectionNetCore21.Models.Web;
 using DigitalInspectionNetCore21.Models.Web.Inspections;
+using DigitalInspectionNetCore21.Models.Web.Inspections.Reports;
+using DigitalInspectionNetCore21.Models.Web.Inspections.Requests;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
+using InspectionImage = DigitalInspectionNetCore21.Models.Inspections.InspectionImage;
+using InspectionItem = DigitalInspectionNetCore21.Models.Inspections.InspectionItem;
+using InspectionMeasurement = DigitalInspectionNetCore21.Models.Inspections.InspectionMeasurement;
 
 namespace DigitalInspectionNetCore21.Services.Core
 {
@@ -75,7 +80,7 @@ namespace DigitalInspectionNetCore21.Services.Core
 			if (!includeUnknown)
 			{
 				// Only show inspection items which have had a marked condition
-				inspectionItems = inspectionItems.Where(ii => ii.Condition != InspectionItemCondition.UNKNOWN).ToList();
+				inspectionItems = inspectionItems.Where(ii => ii.Condition != InspectionItemCondition.Unknown).ToList();
 			}
 
 			if (grouped)

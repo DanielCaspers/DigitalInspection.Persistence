@@ -1,4 +1,4 @@
-﻿namespace DigitalInspectionNetCore21.Models.Inspections.Reports
+﻿namespace DigitalInspectionNetCore21.Models.Web.Inspections.Reports
 {
 	public class CannedResponseReportItem
 	{

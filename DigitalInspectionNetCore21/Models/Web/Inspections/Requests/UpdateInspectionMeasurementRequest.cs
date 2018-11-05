@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DigitalInspectionNetCore21.Models.Web.Inspections
+namespace DigitalInspectionNetCore21.Models.Web.Inspections.Requests
 {
 	/// <summary>
 	/// A key-value pair describing inspection measurements to update, and their values

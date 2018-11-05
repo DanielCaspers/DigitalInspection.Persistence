@@ -5,10 +5,12 @@ using System.Linq;
 using DigitalInspectionNetCore21.Controllers.Interfaces;
 using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Models.Inspections;
-using DigitalInspectionNetCore21.Models.Web.Inspections;
+using DigitalInspectionNetCore21.Models.Web;
+using DigitalInspectionNetCore21.Models.Web.Checklists;
+using DigitalInspectionNetCore21.Models.Web.Checklists.Requests;
 using DigitalInspectionNetCore21.Services.Core.Interfaces;
-using DigitalInspectionNetCore21.ViewModels.Tags;
 using Microsoft.AspNetCore.Mvc;
+using Tag = DigitalInspectionNetCore21.Models.Web.Checklists.Tag;
 
 namespace DigitalInspectionNetCore21.Controllers
 {
@@ -29,7 +31,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="200">Ok</response>
 		[HttpGet("")]
 		[ProducesResponseType(200)]
-		public ActionResult<IEnumerable<TagResponse>> GetAll()
+		public ActionResult<IEnumerable<Tag>> GetAll()
 		{
 			var tags = _tagRepository.GetAll().ToList();
 			return GetTagsResponse(tags);
@@ -41,7 +43,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="200">Ok</response>
 		[HttpGet("VisibleToCustomer")]
 		[ProducesResponseType(200)]
-		public ActionResult<IEnumerable<TagResponse>> GetAllCustomerVisible()
+		public ActionResult<IEnumerable<Tag>> GetAllCustomerVisible()
 		{
 			var tags = _tagRepository.GetAllCustomerVisible().ToList();
 			return GetTagsResponse(tags);
@@ -53,7 +55,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="200">Ok</response>
 		[HttpGet("VisibleToEmployee")]
 		[ProducesResponseType(200)]
-		public ActionResult<IEnumerable<TagResponse>> GetAllEmployeeVisible()
+		public ActionResult<IEnumerable<Tag>> GetAllEmployeeVisible()
 		{
 			var tags = _tagRepository.GetAllEmployeeVisible().ToList();
 			return GetTagsResponse(tags);
@@ -68,7 +70,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		[HttpGet("{id}")]
 		[ProducesResponseType(200)]
 		[ProducesResponseType(404)]
-		public ActionResult<TagResponse> GetById(Guid id)
+		public ActionResult<Tag> GetById(Guid id)
 		{
 			var tag = _context.Tags.Find(id);
 
@@ -77,7 +79,7 @@ namespace DigitalInspectionNetCore21.Controllers
 				return NotFound();
 			}
 
-			var tagResponse = Mapper.Map<TagResponse>(tag);
+			var tagResponse = Mapper.Map<Tag>(tag);
 
 			return Json(tagResponse);
 		}
@@ -95,7 +97,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="201">Created</response>
 		[HttpPost("")]
 		[ProducesResponseType(201)]
-		public ActionResult<TagResponse> Create([FromBody]AddTagViewModel request)
+		public ActionResult<Tag> Create([FromBody]AddTagRequest request)
 		{
 			var tag = new Models.Inspections.Tag
 			{
@@ -107,7 +109,7 @@ namespace DigitalInspectionNetCore21.Controllers
 			_context.Tags.Add(tag);
 			_context.SaveChanges();
 
-			var tagResponse = Mapper.Map<TagResponse>(tag);
+			var tagResponse = Mapper.Map<Tag>(tag);
 
 			var createdUri = new Uri(HttpContext.Request.Path, UriKind.Relative);
 			return Created(createdUri, tagResponse);
@@ -123,7 +125,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		[HttpPut("{id}")]
 		[ProducesResponseType(204)]
 		[ProducesResponseType(404)]
-		public ActionResult Update(Guid id, [FromBody]AddTagViewModel tag)
+		public ActionResult Update(Guid id, [FromBody]AddTagRequest tag)
 		{
 			var tagInDb = _context.Tags.SingleOrDefault(t => t.Id == id);
 			if(tagInDb == null)
@@ -164,9 +166,9 @@ namespace DigitalInspectionNetCore21.Controllers
 			return NoContent();
 		}
 
-		private JsonResult GetTagsResponse(IEnumerable<Tag> tags)
+		private JsonResult GetTagsResponse(IEnumerable<Models.Inspections.Tag> tags)
 		{
-			var tagResponse = Mapper.Map<IEnumerable<TagResponse>>(tags);
+			var tagResponse = Mapper.Map<IEnumerable<Tag>>(tags);
 
 			return Json(tagResponse);
 		}

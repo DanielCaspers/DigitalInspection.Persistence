@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DigitalInspectionNetCore21.Models.Inspections;
 
-namespace DigitalInspectionNetCore21.Models.Inspections.Reports
+namespace DigitalInspectionNetCore21.Models.Web.Inspections.Reports
 {
 	public class InspectionReportItem
 	{
 		public Guid InspectionItemId { get; set; }
 
-		public InspectionItemCondition Condition { get; set; }
+		public Condition Condition { get; set; }
 
 		public string Note { get; set; }
 
@@ -22,10 +23,10 @@ namespace DigitalInspectionNetCore21.Models.Inspections.Reports
 
 		public bool IsCustomerConcern { get; set; }
 
-		public InspectionReportItem(InspectionItem ii, string baseUrl)
+		public InspectionReportItem(Models.Inspections.InspectionItem ii, string baseUrl)
 		{
 			InspectionItemId = ii.Id;
-			Condition = ii.Condition;
+			Condition = TypeSafeEnum.FromValue<Condition>((int) ii.Condition);
 			Note = ii.Note;
 			Name = ii.ChecklistItem.Name;
 			IsCustomerConcern = ii.IsCustomerConcern;

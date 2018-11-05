@@ -228,7 +228,7 @@ namespace DigitalInspectionNetCore21.Models.DbContexts
 				    // Going into the DB
 				    v => ConvertToString(v),
 				    // Coming out of the DB
-				    v => ConvertToRecommendServiceSeverities(v));
+				    v => ConvertToInspectionItemConditions(v));
 	    }
 
 		private string ConvertToString(IList<InspectionItemCondition> levelsOfConcern)
@@ -236,7 +236,7 @@ namespace DigitalInspectionNetCore21.Models.DbContexts
 		    return string.Join(",", levelsOfConcern);
 		}
 
-	    private IList<InspectionItemCondition> ConvertToRecommendServiceSeverities(string levelsOfConcernInDb)
+	    private IList<InspectionItemCondition> ConvertToInspectionItemConditions(string levelsOfConcernInDb)
 	    {
 			if (string.IsNullOrEmpty(levelsOfConcernInDb))
 			{

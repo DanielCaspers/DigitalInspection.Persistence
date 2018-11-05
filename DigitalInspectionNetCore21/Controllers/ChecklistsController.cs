@@ -6,10 +6,12 @@ using DigitalInspectionNetCore21.Controllers.Interfaces;
 using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Models.Inspections;
 using DigitalInspectionNetCore21.Models.Inspections.Joins;
-using DigitalInspectionNetCore21.Models.Web.Inspections;
-using DigitalInspectionNetCore21.ViewModels.Checklists;
+using DigitalInspectionNetCore21.Models.Web;
+using DigitalInspectionNetCore21.Models.Web.Checklists;
+using DigitalInspectionNetCore21.Models.Web.Checklists.Requests;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Checklist = DigitalInspectionNetCore21.Models.Web.Checklists.Checklist;
 
 namespace DigitalInspectionNetCore21.Controllers
 {
@@ -25,14 +27,14 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="200">Ok</response>
 		[HttpGet("")]
 		[ProducesResponseType(200)]
-		public ActionResult<IEnumerable<ChecklistSummaryResponse>> GetAll()
+		public ActionResult<IEnumerable<ChecklistSummary>> GetAll()
 		{
 			var checklists = _context.Checklists
 					.Include(c => c.ChecklistChecklistItems)
 				.OrderBy(c => c.Name)
 				.ToList();
 
-			var checklistSummaryResponses = Mapper.Map<IEnumerable<ChecklistSummaryResponse>>(checklists);
+			var checklistSummaryResponses = Mapper.Map<IEnumerable<ChecklistSummary>>(checklists);
 
 			return Json(checklistSummaryResponses);
 		}
@@ -46,7 +48,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		[HttpGet("{id}")]
 		[ProducesResponseType(200)]
 		[ProducesResponseType(404)]
-		public ActionResult<ChecklistResponse> GetById(Guid id)
+		public ActionResult<Checklist> GetById(Guid id)
 		{
 			var checklist = _context.Checklists
 				.Include(c => c.ChecklistChecklistItems)
@@ -58,7 +60,7 @@ namespace DigitalInspectionNetCore21.Controllers
 			}
 			else
 			{
-				var checklistResponse = Mapper.Map<ChecklistResponse>(checklist);
+				var checklistResponse = Mapper.Map<Checklist>(checklist);
 
 				return Json(checklistResponse);
 			}
@@ -74,7 +76,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		[HttpGet("{id}/Edit")]
 		[ProducesResponseType(200)]
 		[ProducesResponseType(404)]
-		public ActionResult<EditChecklistViewModel> EditById(Guid id)
+		public ActionResult<EditChecklistRequest> EditById(Guid id)
 		{
 			var checklist = _context.Checklists
 				.Include(c => c.ChecklistChecklistItems)
@@ -85,13 +87,13 @@ namespace DigitalInspectionNetCore21.Controllers
 				return NotFound();
 			}
 
-			IList<ChecklistItem> checklistItems = _context.ChecklistItems.OrderBy(c => c.Name).ToList();
+			IList<Models.Inspections.ChecklistItem> checklistItems = _context.ChecklistItems.OrderBy(c => c.Name).ToList();
 			IList<bool> isChecklistItemSelected = checklistItems.Select(ci => checklist.ChecklistChecklistItems.Any(cci => cci.ChecklistItemId == ci.Id)).ToList();
 
-			var viewModel = new EditChecklistViewModel
+			var viewModel = new EditChecklistRequest
 			{
-				Checklist = Mapper.Map<ChecklistSummaryResponse>(checklist),
-				ChecklistItems = Mapper.Map<IList<ChecklistItemResponse>>(checklistItems),
+				Checklist = Mapper.Map<ChecklistSummary>(checklist),
+				ChecklistItems = Mapper.Map<IList<Models.Web.Checklists.ChecklistItem>>(checklistItems),
 				IsChecklistItemSelected = isChecklistItemSelected
 			};
 			return Json(viewModel);
@@ -107,9 +109,9 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="201">Created</response>
 		[HttpPost("")]
 		[ProducesResponseType(201)]
-		public ActionResult<ChecklistResponse> Create([FromBody]AddChecklistViewModel request)
+		public ActionResult<Checklist> Create([FromBody]AddChecklistRequest request)
 		{
-			var checklist = new Checklist
+			var checklist = new Models.Inspections.Checklist
 			{
 				Name = request.Name,
 				Id = Guid.NewGuid()
@@ -118,7 +120,7 @@ namespace DigitalInspectionNetCore21.Controllers
 			_context.Checklists.Add(checklist);
 			_context.SaveChanges();
 
-			var checklistResponse = Mapper.Map<ChecklistResponse>(checklist);
+			var checklistResponse = Mapper.Map<Checklist>(checklist);
 
 			var createdUri = new Uri(HttpContext.Request.Path, UriKind.Relative);
 			return Created(createdUri, checklistResponse);
@@ -135,7 +137,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		[ProducesResponseType(204)]
 		[ProducesResponseType(404)]
 		//https://docs.microsoft.com/en-us/aspnet/core/mvc/models/file-uploads?view=aspnetcore-2.1
-		public ActionResult Update(Guid id, [FromBody]EditChecklistViewModel request)
+		public ActionResult Update(Guid id, [FromBody]EditChecklistRequest request)
 		{
 			var checklistInDb = _context.Checklists
 				.Include(ci => ci.ChecklistChecklistItems)
@@ -149,7 +151,7 @@ namespace DigitalInspectionNetCore21.Controllers
 			{
 				checklistInDb.Name = request.Checklist.Name;
 
-				IList<ChecklistItem> selectedItems = new List<ChecklistItem>();
+				IList<Models.Inspections.ChecklistItem> selectedItems = new List<Models.Inspections.ChecklistItem>();
 				// Using plain for loop for parallel array data reference
 				for (var i = 0; i < request.IsChecklistItemSelected.Count; i++)
 				{

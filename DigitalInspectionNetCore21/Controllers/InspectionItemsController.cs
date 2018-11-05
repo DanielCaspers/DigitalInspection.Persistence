@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using AutoMapper;
 using DigitalInspectionNetCore21.Models.DbContexts;
+using DigitalInspectionNetCore21.Models.Web;
 using DigitalInspectionNetCore21.Models.Web.Inspections;
+using DigitalInspectionNetCore21.Models.Web.Inspections.Requests;
 using DigitalInspectionNetCore21.Services.Core;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -29,7 +31,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		[HttpGet("")]
 		[ProducesResponseType(200)]
 		[ProducesResponseType(404)]
-		public ActionResult<InspectionItemResponse> GetById(Guid id)
+		public ActionResult<InspectionItem> GetById(Guid id)
 		{
 			var inspectionItem = _context.InspectionItems.SingleOrDefault(ii => ii.Id == id);
 
@@ -39,7 +41,7 @@ namespace DigitalInspectionNetCore21.Controllers
 			}
 			else
 			{
-				var checklistItemResponse = Mapper.Map<InspectionItemResponse>(inspectionItem);
+				var checklistItemResponse = Mapper.Map<InspectionItem>(inspectionItem);
 				return Json(checklistItemResponse);
 			}
 		}
@@ -65,7 +67,7 @@ namespace DigitalInspectionNetCore21.Controllers
 				return NotFound();
 			}
 
-			return InspectionService.UpdateInspectionItemCondition(_context, inspectionItemInDb, (Models.Inspections.InspectionItemCondition) condition) ?
+			return InspectionService.UpdateInspectionItemCondition(_context, inspectionItemInDb, (Models.Inspections.InspectionItemCondition) condition.Value) ?
 				NoContent() : 
 				StatusCode(500);
 		}

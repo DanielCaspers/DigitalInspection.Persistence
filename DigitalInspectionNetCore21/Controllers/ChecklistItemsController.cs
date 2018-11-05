@@ -5,12 +5,14 @@ using AutoMapper;
 using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Models.Inspections;
 using DigitalInspectionNetCore21.Models.Inspections.Joins;
-using DigitalInspectionNetCore21.Models.Web.Inspections;
 using DigitalInspectionNetCore21.Services.Core.Interfaces;
-using DigitalInspectionNetCore21.ViewModels.ChecklistItems;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DigitalInspectionNetCore21.Controllers.Interfaces;
+using DigitalInspectionNetCore21.Models.Web.Checklists;
+using DigitalInspectionNetCore21.Models.Web.Checklists.Requests;
+using Measurement = DigitalInspectionNetCore21.Models.Web.Checklists.Measurement;
+using Tag = DigitalInspectionNetCore21.Models.Web.Checklists.Tag;
 
 namespace DigitalInspectionNetCore21.Controllers
 {
@@ -33,11 +35,11 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="200">Ok</response>
 		[HttpGet("")]
 		[ProducesResponseType(200)]
-		public ActionResult<IEnumerable<ChecklistItemSummaryResponse>> GetAll()
+		public ActionResult<IEnumerable<ChecklistItemSummary>> GetAll()
 		{
 			var checklistItems = _checklistItemRepository.GetAll().ToList();
 
-			var checklistItemSummaryResponses = Mapper.Map<IEnumerable<ChecklistItemSummaryResponse>>(checklistItems);
+			var checklistItemSummaryResponses = Mapper.Map<IEnumerable<ChecklistItemSummary>>(checklistItems);
 
 			return Json(checklistItemSummaryResponses);
 		}
@@ -51,7 +53,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		[HttpGet("{id}")]
 		[ProducesResponseType(200)]
 		[ProducesResponseType(404)]
-		public ActionResult<ChecklistItemResponse> GetById(Guid id)
+		public ActionResult<Models.Web.Checklists.ChecklistItem> GetById(Guid id)
 		{
 			var checklistItem = _checklistItemRepository.GetById(id);
 
@@ -61,7 +63,7 @@ namespace DigitalInspectionNetCore21.Controllers
 			}
 			else
 			{
-				var checklistItemResponse = Mapper.Map<ChecklistItemResponse>(checklistItem);
+				var checklistItemResponse = Mapper.Map<Models.Web.Checklists.ChecklistItem>(checklistItem);
 				return Json(checklistItemResponse);
 			}
 		}
@@ -76,7 +78,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		[HttpGet("{id}/Edit")]
 		[ProducesResponseType(200)]
 		[ProducesResponseType(404)]
-		public ActionResult<EditChecklistItemViewModel> EditById(Guid id)
+		public ActionResult<EditChecklistItemRequest> EditById(Guid id)
 		{
 			var checklistItem = _checklistItemRepository.GetById(id);
 
@@ -88,10 +90,10 @@ namespace DigitalInspectionNetCore21.Controllers
 			{
 				var tags = _tagRepository.GetAll().ToList();
 				var selectedTagIds = checklistItem.ChecklistItemTags.Select(cit => cit.TagId);
-				var viewModel = new EditChecklistItemViewModel
+				var viewModel = new EditChecklistItemRequest
 				{
-					ChecklistItem = Mapper.Map<ChecklistItemResponse>(checklistItem),
-					Tags = Mapper.Map<IList<TagResponse>>(tags),
+					ChecklistItem = Mapper.Map<Models.Web.Checklists.ChecklistItem>(checklistItem),
+					Tags = Mapper.Map<IList<Tag>>(tags),
 					SelectedTagIds = selectedTagIds
 				};
 				return Json(viewModel);
@@ -105,9 +107,9 @@ namespace DigitalInspectionNetCore21.Controllers
 		/// <response code="201">Created</response>
 		[HttpPost("")]
 		[ProducesResponseType(201)]
-		public ActionResult<ChecklistItemResponse> Create([FromBody]AddChecklistItemViewModel request)
+		public ActionResult<Models.Web.Checklists.ChecklistItem> Create([FromBody]AddChecklistItemRequest request)
 		{
-			var checklistItem = new ChecklistItem()
+			var checklistItem = new Models.Inspections.ChecklistItem()
 			{
 				Name = request.Name
 			};
@@ -126,7 +128,7 @@ namespace DigitalInspectionNetCore21.Controllers
 			_context.ChecklistItems.Add(checklistItem);
 			_context.SaveChanges();
 
-			var checklistItemResponse = Mapper.Map<ChecklistItemResponse>(checklistItem);
+			var checklistItemResponse = Mapper.Map<Models.Web.Checklists.ChecklistItem>(checklistItem);
 
 			var createdUri = new Uri(HttpContext.Request.Path, UriKind.Relative);
 			return Created(createdUri, checklistItemResponse);
@@ -142,7 +144,7 @@ namespace DigitalInspectionNetCore21.Controllers
 		[HttpPut("{id}")]
 		[ProducesResponseType(204)]
 		[ProducesResponseType(404)]
-		public ActionResult Update(Guid id, [FromBody]EditChecklistItemViewModel request)
+		public ActionResult Update(Guid id, [FromBody]EditChecklistItemRequest request)
 		{
 			// TODO Determine if Find() will help with getting rid of context attach.
 			var checklistItemInDb = _context.ChecklistItems
@@ -197,7 +199,7 @@ namespace DigitalInspectionNetCore21.Controllers
 				if (cannedResponseInDb != null)
 				{
 					cannedResponseInDb.Response = cannedResponseInVm.Response;
-					cannedResponseInDb.LevelsOfConcern =  (IList<InspectionItemCondition>) cannedResponseInVm.LevelsOfConcern.Select(condition => (InspectionItemCondition)condition);
+					cannedResponseInDb.LevelsOfConcern =  (IList<InspectionItemCondition>) cannedResponseInVm.LevelsOfConcern.Select(condition => (InspectionItemCondition)condition.Value);
 					cannedResponseInDb.Url = cannedResponseInVm.Url;
 					cannedResponseInDb.Description = cannedResponseInVm.Description;
 				}
@@ -278,12 +280,12 @@ namespace DigitalInspectionNetCore21.Controllers
 				return NotFound();
 			}
 
-			var measurement = new Measurement();
+			var measurement = new Models.Inspections.Measurement();
 			checklistItem.Measurements.Add(measurement);
 
 			_context.SaveChanges();
 
-			var measurementResponse = Mapper.Map<MeasurementResponse>(measurement);
+			var measurementResponse = Mapper.Map<Measurement>(measurement);
 
 			return Ok(measurementResponse);
 		}
@@ -366,7 +368,7 @@ namespace DigitalInspectionNetCore21.Controllers
 				return NotFound();
 			}
 
-			var cannedResponse = new CannedResponse()
+			var cannedResponse = new Models.Inspections.CannedResponse()
 			{
 				Response = "A new response"
 			};
@@ -374,7 +376,7 @@ namespace DigitalInspectionNetCore21.Controllers
 
 			_context.SaveChanges();
 
-			var cannedResponseResponse = Mapper.Map<CannedResponseResponse>(cannedResponse);
+			var cannedResponseResponse = Mapper.Map<Models.Web.Checklists.CannedResponse>(cannedResponse);
 
 			return Ok(cannedResponseResponse);
 		}

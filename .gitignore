@@ -4,6 +4,9 @@
 #User uploaded content
 Uploads/
 
+#Publish profiles
+DigitalInspectionNetCore21/Properties/PublishProfiles
+
 # User-specific files
 *.suo
 *.user

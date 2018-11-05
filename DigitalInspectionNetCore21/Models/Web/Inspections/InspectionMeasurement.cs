@@ -5,7 +5,7 @@ namespace DigitalInspectionNetCore21.Models.Web.Inspections
 	/// <summary>
 	/// The measurement collected while performing an inspection
 	/// </summary>
-	public class InspectionMeasurementResponse
+	public class InspectionMeasurement
 	{
 		public Guid Id { get; set; }
 

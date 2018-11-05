@@ -26,14 +26,14 @@
             <response code="200">Ok</response>
             <response code="404">Not found</response>
         </member>
-        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistItemsController.Create(DigitalInspectionNetCore21.ViewModels.ChecklistItems.AddChecklistItemViewModel)">
+        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistItemsController.Create(DigitalInspectionNetCore21.Models.Web.Checklists.Requests.AddChecklistItemRequest)">
             <summary>
             Create a checklist item as a templated item for a future inspection
             </summary>
             <param name="request">Constraints to impose on the unit of inspection to be performed</param>
             <response code="201">Created</response>
         </member>
-        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistItemsController.Update(System.Guid,DigitalInspectionNetCore21.ViewModels.ChecklistItems.EditChecklistItemViewModel)">
+        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistItemsController.Update(System.Guid,DigitalInspectionNetCore21.Models.Web.Checklists.Requests.EditChecklistItemRequest)">
             <summary>
             Update a checklist item
             </summary>
@@ -122,7 +122,7 @@
             <response code="200">Ok</response>
             <response code="404">Not found</response>
         </member>
-        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistsController.Create(DigitalInspectionNetCore21.ViewModels.Checklists.AddChecklistViewModel)">
+        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistsController.Create(DigitalInspectionNetCore21.Models.Web.Checklists.Requests.AddChecklistRequest)">
             <summary>
             Create a checklist as a template for a future inspection
             </summary>
@@ -132,7 +132,7 @@
             </param>
             <response code="201">Created</response>
         </member>
-        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistsController.Update(System.Guid,DigitalInspectionNetCore21.ViewModels.Checklists.EditChecklistViewModel)">
+        <member name="M:DigitalInspectionNetCore21.Controllers.ChecklistsController.Update(System.Guid,DigitalInspectionNetCore21.Models.Web.Checklists.Requests.EditChecklistRequest)">
             <summary>
             Update a checklist
             </summary>
@@ -236,7 +236,7 @@
             <response code="404">Inspection item not found</response>
             <response code="500">Unable to update the inspection item notes</response>
         </member>
-        <member name="M:DigitalInspectionNetCore21.Controllers.InspectionItemsController.SetMeasurements(System.Guid,System.Collections.Generic.IEnumerable{DigitalInspectionNetCore21.Models.Web.Inspections.UpdateInspectionMeasurementRequest})">
+        <member name="M:DigitalInspectionNetCore21.Controllers.InspectionItemsController.SetMeasurements(System.Guid,System.Collections.Generic.IEnumerable{DigitalInspectionNetCore21.Models.Web.Inspections.Requests.UpdateInspectionMeasurementRequest})">
             <summary>
             Update measurements to be collected with their values
             </summary>
@@ -299,7 +299,7 @@
             <response code="200">Ok</response>
             <response code="404">Not found</response>
         </member>
-        <member name="M:DigitalInspectionNetCore21.Controllers.TagsController.Create(DigitalInspectionNetCore21.ViewModels.Tags.AddTagViewModel)">
+        <member name="M:DigitalInspectionNetCore21.Controllers.TagsController.Create(DigitalInspectionNetCore21.Models.Web.Checklists.Requests.AddTagRequest)">
             <summary>
             Create a tag for grouping checklist items under
             </summary>
@@ -312,7 +312,7 @@
             <param name="request">Tag description</param>
             <response code="201">Created</response>
         </member>
-        <member name="M:DigitalInspectionNetCore21.Controllers.TagsController.Update(System.Guid,DigitalInspectionNetCore21.ViewModels.Tags.AddTagViewModel)">
+        <member name="M:DigitalInspectionNetCore21.Controllers.TagsController.Update(System.Guid,DigitalInspectionNetCore21.Models.Web.Checklists.Requests.AddTagRequest)">
             <summary>
             Update a tag
             </summary>
@@ -387,7 +387,7 @@
             4 part blog for possible refactor
             https://blog.oneunicorn.com/2017/09/25/many-to-many-relationships-in-ef-core-2-0-part-2-hiding-as-ienumerable/
         </member>
-        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.CannedResponseResponse">
+        <member name="T:DigitalInspectionNetCore21.Models.Web.Checklists.CannedResponse">
             <summary>
             Used to describe a common problem that occurs on a checklist item
             </summary>
@@ -397,18 +397,18 @@
             precisely every time they are marked down.
             </remarks>
         </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.CannedResponseResponse.Response">
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Checklists.CannedResponse.Response">
             <summary>
             The shorthand description for the common problem associated unit of inspection.
             </summary>
             <remarks>This is to be used by employees when performing an inspection.</remarks>
         </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.CannedResponseResponse.Url">
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Checklists.CannedResponse.Url">
             <summary>
             A url for linking to external resources describing the problem, or help content
             </summary>
         </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.CannedResponseResponse.Description">
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Checklists.CannedResponse.Description">
             <summary>
             A longer description of the problem
             </summary>
@@ -417,148 +417,92 @@
              to understand how this problem affects their vehicle.
             </remarks>
         </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.CannedResponseResponse.LevelsOfConcern">
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Checklists.CannedResponse.LevelsOfConcern">
             <summary>
             A list of conditions, or severites, associated with this particular problem on the item being inspected.
             </summary>
         </member>
-        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.ChecklistItemResponse">
-            <summary>
-            A unit of work to be performed to determine the condition of a vehicle
-            </summary>
-        </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.ChecklistItemResponse.Name">
-            <summary>
-            The name of the unit of work
-            </summary>
-        </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.ChecklistItemResponse.Tags">
-            <summary>
-            The tags associated with this checklist item
-            </summary>
-        </member>
-        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.ChecklistItemSummaryResponse">
-            <summary>
-            A summary of a unit of work to be performed to determine the condition of a vehicle
-            </summary>
-        </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.ChecklistItemSummaryResponse.Tags">
-            <summary>
-            The tags associated with this checklist item
-            </summary>
-        </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.ChecklistItemSummaryResponse.Name">
-            <summary>
-            The name of the unit of work
-            </summary>
-        </member>
-        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.ChecklistResponse">
+        <member name="T:DigitalInspectionNetCore21.Models.Web.Checklists.Checklist">
             <summary>
             A series of steps to perform to quanitfy the condition of a vehicle
             </summary>
         </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.ChecklistResponse.ChecklistItems">
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Checklists.Checklist.ChecklistItems">
             <summary>
             The items which make up the checklist
             </summary>
         </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.ChecklistResponse.Name">
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Checklists.Checklist.Name">
             <summary>
             The name of the checklist
             </summary>
         </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.ChecklistSummaryResponse.ChecklistItemsCount">
+        <member name="T:DigitalInspectionNetCore21.Models.Web.Checklists.ChecklistItem">
+            <summary>
+            A unit of work to be performed to determine the condition of a vehicle
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Checklists.ChecklistItem.Name">
+            <summary>
+            The name of the unit of work
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Checklists.ChecklistItem.Tags">
+            <summary>
+            The tags associated with this checklist item
+            </summary>
+        </member>
+        <member name="T:DigitalInspectionNetCore21.Models.Web.Checklists.ChecklistItemSummary">
+            <summary>
+            A summary of a unit of work to be performed to determine the condition of a vehicle
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Checklists.ChecklistItemSummary.Tags">
+            <summary>
+            The tags associated with this checklist item
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Checklists.ChecklistItemSummary.Name">
+            <summary>
+            The name of the unit of work
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Checklists.ChecklistSummary.ChecklistItemsCount">
             <summary>
             Number of checklist items in the checklist
             </summary>
         </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.ChecklistSummaryResponse.Name">
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Checklists.ChecklistSummary.Name">
             <summary>
             The name of the checklist
             </summary>
         </member>
-        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionImageResponse">
-            <summary>
-            An image belonging to an inspection item performed on a vehicle. 
-            </summary>
-        </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionImageResponse.Title">
-            <summary>
-            The title of the image file
-            </summary>
-        </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionImageResponse.ImageUrl">
-            <summary>
-            The location of the image on the server
-            </summary>
-        </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionImageResponse.CreatedDate">
-            <summary>
-            The upload date of the image
-            </summary>
-        </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionImageResponse.InspectionItemId">
-            <summary>
-            The id of the associated inspection item
-            </summary>
-        </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionImageResponse.IsVisibleToCustomer">
-            <summary>
-            Determines if this image is visible in the customer's inspection report
-            </summary>
-        </member>
-        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionMeasurementResponse">
-            <summary>
-            The measurement collected while performing an inspection
-            </summary>
-        </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionMeasurementResponse.InspectionItemId">
-            <summary>
-            The id of the inspection item which the measurement corresponds to
-            </summary>
-        </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionMeasurementResponse.MeasurementId">
-            <summary>
-            The id of the measurement template describing this value collected
-            </summary>
-        </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionMeasurementResponse.Value">
-            <summary>
-            The value collected
-            </summary>
-            <remarks>Null implies no value was collected</remarks>
-        </member>
-        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionSummaryResponse">
-            <summary>
-            An inspection report
-            </summary>
-        </member>
-        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.MeasurementResponse">
+        <member name="T:DigitalInspectionNetCore21.Models.Web.Checklists.Measurement">
             <summary>
             A measurement to quantify the condition of an inspection item
             </summary>
         </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.MeasurementResponse.Label">
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Checklists.Measurement.Label">
             <summary>
             The display name of the measurement to collect
             </summary>
         </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.MeasurementResponse.MinValue">
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Checklists.Measurement.MinValue">
             <summary>
             The minimum value of the measurement, inclusive
             </summary>
         </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.MeasurementResponse.MaxValue">
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Checklists.Measurement.MaxValue">
             <summary>
             The maximum value of the measurement, inclusive
             </summary>
         </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.MeasurementResponse.StepSize">
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Checklists.Measurement.StepSize">
             <summary>
             The amount to increment/decrement by in the inspection by default
             </summary>
         </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.MeasurementResponse.Unit">
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Checklists.Measurement.Unit">
             <summary>
             The unit of measure being collected.
             </summary>
@@ -567,7 +511,7 @@
             For example, if you want to measure tire tread depth, consider units of "32nds inch"
             </remarks>
         </member>
-        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.TagResponse">
+        <member name="T:DigitalInspectionNetCore21.Models.Web.Checklists.Tag">
             <summary>
             Tags are used to 
             - Group what customers see down by subsystem or feature in order for them to better identify
@@ -576,7 +520,7 @@
             by the most relevant sections to perform at any given time.
             </summary>
         </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.TagResponse.Name">
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Checklists.Tag.Name">
             <summary>
             The display name of the tag. 
             </summary>
@@ -586,13 +530,13 @@
             subsystems or subsets (e.g. Exterior, Interior, Tires and Brakes, Drivetrain, etc)
             </remarks>
         </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.TagResponse.IsVisibleToCustomer">
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Checklists.Tag.IsVisibleToCustomer">
             <summary>
             Whether or not any the results of performing any associated checklist items
             should be included in the customer's inspection report
             </summary>
         </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.TagResponse.IsVisibleToEmployee">
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Checklists.Tag.IsVisibleToEmployee">
             <summary>
             Whether or not the grouping should be visible to employees
             </summary>
@@ -602,23 +546,84 @@
             Creating separate tags for customers and employees can sometimes be ideal depending upon use case.
             </remarks>
         </member>
-        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.UpdateInspectionMeasurementRequest">
+        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionImage">
+            <summary>
+            An image belonging to an inspection item performed on a vehicle. 
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionImage.Title">
+            <summary>
+            The title of the image file
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionImage.ImageUrl">
+            <summary>
+            The location of the image on the server
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionImage.CreatedDate">
+            <summary>
+            The upload date of the image
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionImage.InspectionItemId">
+            <summary>
+            The id of the associated inspection item
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionImage.IsVisibleToCustomer">
+            <summary>
+            Determines if this image is visible in the customer's inspection report
+            </summary>
+        </member>
+        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionMeasurement">
+            <summary>
+            The measurement collected while performing an inspection
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionMeasurement.InspectionItemId">
+            <summary>
+            The id of the inspection item which the measurement corresponds to
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionMeasurement.MeasurementId">
+            <summary>
+            The id of the measurement template describing this value collected
+            </summary>
+        </member>
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionMeasurement.Value">
+            <summary>
+            The value collected
+            </summary>
+            <remarks>Null implies no value was collected</remarks>
+        </member>
+        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.InspectionSummary">
+            <summary>
+            An inspection report
+            </summary>
+        </member>
+        <member name="T:DigitalInspectionNetCore21.Models.Web.Inspections.Requests.UpdateInspectionMeasurementRequest">
             <summary>
             A key-value pair describing inspection measurements to update, and their values
             </summary>
         </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.UpdateInspectionMeasurementRequest.Id">
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.Requests.UpdateInspectionMeasurementRequest.Id">
             <summary>
             ID of the inspection measurement being updated
             </summary>
         </member>
-        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.UpdateInspectionMeasurementRequest.Value">
+        <member name="P:DigitalInspectionNetCore21.Models.Web.Inspections.Requests.UpdateInspectionMeasurementRequest.Value">
             <summary>
             The measurement collected
             </summary>
             <remarks>
             Null implies that the value was not collected
             </remarks>
+        </member>
+        <member name="T:DigitalInspectionNetCore21.Models.Web.TypeSafeEnum">
+            <summary>
+            https://lostechies.com/jimmybogard/2008/08/12/enumeration-classes/
+            </summary>
         </member>
         <member name="T:DigitalInspectionNetCore21.Services.Core.ChecklistItemRepository">
             <inheritdoc cref="T:DigitalInspectionNetCore21.Services.Core.Interfaces.IChecklistItemRepository"/>

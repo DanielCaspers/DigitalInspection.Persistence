@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DigitalInspectionNetCore21.Models.Web.Inspections
+namespace DigitalInspectionNetCore21.Models.Web.Checklists
 {
 	/// <summary>
 	/// Tags are used to 
@@ -9,7 +9,7 @@ namespace DigitalInspectionNetCore21.Models.Web.Inspections
 	/// - Allow employees to filter by a logical grouping so that they can order their inspections 
 	/// by the most relevant sections to perform at any given time.
 	/// </summary>
-	public class TagResponse
+	public class Tag
 	{
 		public Guid Id { get; set; }
 

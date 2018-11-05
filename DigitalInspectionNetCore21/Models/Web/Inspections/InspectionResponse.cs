@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DigitalInspectionNetCore21.Models.Web.Checklists;
 
 namespace DigitalInspectionNetCore21.Models.Web.Inspections
 {
@@ -10,11 +11,11 @@ namespace DigitalInspectionNetCore21.Models.Web.Inspections
 		public string WorkOrderId { get; set; }
 
 		// Should have top level props like checklist id and name
-		public IList<ChecklistResponse> Checklists { get; set; } = new List<ChecklistResponse>();
+		public IList<Checklist> Checklists { get; set; } = new List<Checklist>();
 
 		// Should have all checklist items
-		public IList<ChecklistItemResponse> ChecklistItems { get; set; } = new List<ChecklistItemResponse>();
+		public IList<ChecklistItem> ChecklistItems { get; set; } = new List<ChecklistItem>();
 
-		public IList<InspectionItemResponse> InspectionItems { get; set; } = new List<InspectionItemResponse>();
+		public IList<InspectionItem> InspectionItems { get; set; } = new List<InspectionItem>();
 	}
 }

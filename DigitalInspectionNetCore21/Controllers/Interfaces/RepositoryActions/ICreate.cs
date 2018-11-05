@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace DigitalInspectionNetCore21.Controllers.Interfaces
+namespace DigitalInspectionNetCore21.Controllers.Interfaces.RepositoryActions
 {
 	internal interface ICreate<TRequest, TResponse>
 	{

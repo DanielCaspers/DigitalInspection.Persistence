@@ -4,20 +4,20 @@
 	{
 		// The unset value of the enum should be 0, so that this is also the default constructed value
 		// We need this to remain this way so that we can filter these out from the customer's view
-		UNKNOWN = 0,
+		Unknown = 0,
 
-		IMMEDIATE = 1,
+		Immediate = 1,
 
-		MODERATE = 2,
+		Moderate = 2,
 
-		SHOULD_WATCH = 3,
+		ShouldWatch = 3,
 
-		MAINTENANCE = 4,
+		Maintenance = 4,
 
-		NOTES = 5,
+		Notes = 5,
 
-		OK = 10,
+		Ok = 10,
 
-		NOT_APPLICABLE = 11
+		NotApplicable = 11
 	}
 }

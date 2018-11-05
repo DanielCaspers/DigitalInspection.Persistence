@@ -4,8 +4,7 @@ using System.Linq;
 using System.Reflection;
 using AutoMapper;
 using DigitalInspectionNetCore21.Models.DbContexts;
-using DigitalInspectionNetCore21.Models.Inspections;
-using DigitalInspectionNetCore21.Models.Web.Inspections;
+using DigitalInspectionNetCore21.Models.Web.Checklists;
 using DigitalInspectionNetCore21.Services.Core;
 using DigitalInspectionNetCore21.Services.Core.Interfaces;
 using Microsoft.AspNetCore.Builder;
@@ -18,6 +17,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using Swashbuckle.AspNetCore.Swagger;
+using Checklist = DigitalInspectionNetCore21.Models.Web.Checklists.Checklist;
+using ChecklistItem = DigitalInspectionNetCore21.Models.Web.Checklists.ChecklistItem;
+using InspectionItem = DigitalInspectionNetCore21.Models.Web.Inspections.InspectionItem;
+using InspectionMeasurement = DigitalInspectionNetCore21.Models.Web.Inspections.InspectionMeasurement;
+using Measurement = DigitalInspectionNetCore21.Models.Web.Checklists.Measurement;
+using Tag = DigitalInspectionNetCore21.Models.Web.Checklists.Tag;
 
 namespace DigitalInspectionNetCore21
 {
@@ -179,20 +184,20 @@ namespace DigitalInspectionNetCore21
 		    Mapper.Initialize(
 			    cfg =>
 			    {
-				    cfg.CreateMap<Models.Inspections.Tag, TagResponse>();
+				    cfg.CreateMap<Models.Inspections.Tag, Tag>();
 
-				    cfg.CreateMap<Checklist, ChecklistSummaryResponse>()
+				    cfg.CreateMap<Models.Inspections.Checklist, ChecklistSummary>()
 					    .ForMember(dest => dest.ChecklistItemsCount, opt => opt.MapFrom(src => src.ChecklistChecklistItems.Count));
 
-				    cfg.CreateMap<InspectionMeasurement, InspectionMeasurementResponse>()
+				    cfg.CreateMap<Models.Inspections.InspectionMeasurement, InspectionMeasurement>()
 					    .ForMember(dest => dest.InspectionItemId, opt => opt.MapFrom(src => src.InspectionItem.Id))
 					    .ForMember(dest => dest.MeasurementId, opt => opt.MapFrom(src => src.Measurement.Id));
 
-					cfg.CreateMap<Measurement, MeasurementResponse>();
+					cfg.CreateMap<Models.Inspections.Measurement, Measurement>();
 
-				    cfg.CreateMap<CannedResponse, CannedResponseResponse>();
+				    cfg.CreateMap<Models.Inspections.CannedResponse, CannedResponse>();
 
-					cfg.CreateMap<ChecklistItem, ChecklistItemResponse>()
+					cfg.CreateMap<Models.Inspections.ChecklistItem, ChecklistItem>()
 					    .ForMember(dest => dest.ChecklistIds,
 						    opt => opt.MapFrom(src => src.ChecklistChecklistItems.Select(cci => cci.ChecklistId)))
 					    .ForMember(dest => dest.InspectionIds,
@@ -200,12 +205,12 @@ namespace DigitalInspectionNetCore21
 					    .ForMember(dest => dest.InspectionItemIds, opt => opt.MapFrom(src => src.InspectionItems.Select(ii => ii.Id)))
 					    .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.ChecklistItemTags.Select(cit => cit.Tag)));
 
-				    cfg.CreateMap<Checklist, ChecklistResponse>();
+				    cfg.CreateMap<Models.Inspections.Checklist, Checklist>();
 
-					cfg.CreateMap<ChecklistItem, ChecklistItemSummaryResponse>()
+					cfg.CreateMap<Models.Inspections.ChecklistItem, ChecklistItemSummary>()
 					    .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.ChecklistItemTags.Select(cit => cit.Tag)));
 
-				    cfg.CreateMap<InspectionItem, InspectionItemResponse>()
+				    cfg.CreateMap<Models.Inspections.InspectionItem, InspectionItem>()
 					    .ForMember(dest => dest.InspectionId, opt => opt.MapFrom(src => src.Inspection.Id))
 					    .ForMember(dest => dest.ChecklistItemId, opt => opt.MapFrom(src => src.ChecklistItem.Id))
 					    .ForMember(dest => dest.CannedResponseIds, opt => opt.MapFrom(src => src.InspectionItemCannedResponses.Select(iicr => iicr.CannedResponseId)));

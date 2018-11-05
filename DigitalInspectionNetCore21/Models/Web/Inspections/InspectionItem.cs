@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DigitalInspectionNetCore21.Models.Web.Inspections
 {
-	public class InspectionItemResponse
+	public class InspectionItem
 	{
 		public Guid Id { get; set; }
 
@@ -11,7 +11,7 @@ namespace DigitalInspectionNetCore21.Models.Web.Inspections
 
 		public Guid ChecklistItemId { get; set; }
 
-		public IList<InspectionMeasurementResponse> InspectionMeasurements { get; set; }
+		public IList<InspectionMeasurement> InspectionMeasurements { get; set; }
 
 		public string Note { get; set; }
 
@@ -21,7 +21,7 @@ namespace DigitalInspectionNetCore21.Models.Web.Inspections
 
 		public IList<Guid> SelectedCannedResponseIds { get; set; }
 
-		public IList<InspectionImageResponse> InspectionImages { get; set; }
+		public IList<InspectionImage> InspectionImages { get; set; }
 
 		public bool IsCustomerConcern { get; set; }
 	}

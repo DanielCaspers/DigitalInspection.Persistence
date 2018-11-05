@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace DigitalInspectionNetCore21.Models.Web.Inspections
+namespace DigitalInspectionNetCore21.Models.Web.Checklists
 {
-	public class ChecklistSummaryResponse
+	public class ChecklistSummary
 	{
 		public Guid Id { get; set; }
 

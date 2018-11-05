@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using DigitalInspectionNetCore21.Models.Web.Inspections;
 
-namespace DigitalInspectionNetCore21.Models.Web.Inspections
+namespace DigitalInspectionNetCore21.Models.Web.Checklists
 {
 	/// <summary>
 	/// Used to describe a common problem that occurs on a checklist item
@@ -11,7 +12,7 @@ namespace DigitalInspectionNetCore21.Models.Web.Inspections
 	/// This also allows for rich, thoughtful descriptions of the nature of the problem to be described
 	/// precisely every time they are marked down.
 	/// </remarks>
-	public class CannedResponseResponse
+	public class CannedResponse
 	{
 		public Guid Id { get; set; }
 

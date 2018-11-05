@@ -1,13 +1,15 @@
-﻿using DigitalInspectionNetCore21.Models.Web.Inspections;
-using DigitalInspectionNetCore21.ViewModels.Checklists;
+﻿using DigitalInspectionNetCore21.Controllers.Interfaces.RepositoryActions;
+using DigitalInspectionNetCore21.Models.Web;
+using DigitalInspectionNetCore21.Models.Web.Checklists;
+using DigitalInspectionNetCore21.Models.Web.Checklists.Requests;
 
 namespace DigitalInspectionNetCore21.Controllers.Interfaces
 {
 	internal interface IChecklistsController: 
-		IGetAll<ChecklistSummaryResponse>,
-		IGetById<ChecklistResponse>,
-		ICreate<AddChecklistViewModel, ChecklistResponse>,
-		IUpdate<EditChecklistViewModel>,
+		IGetAll<ChecklistSummary>,
+		IGetById<Checklist>,
+		ICreate<AddChecklistRequest, Checklist>,
+		IUpdate<EditChecklistRequest>,
 		IDelete
 	{
 	}

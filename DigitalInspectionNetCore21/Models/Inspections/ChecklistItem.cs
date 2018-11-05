@@ -31,7 +31,5 @@ namespace DigitalInspectionNetCore21.Models.Inspections
 
 		[Required]
 		public virtual IList<Measurement> Measurements { get; set; } = new List<Measurement>();
-
-		public enum Condition {NEEDS_SERVICE, SHOULD_WATCH, ALL_GOOD }
 	}
 }

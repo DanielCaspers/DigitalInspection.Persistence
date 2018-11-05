@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace DigitalInspectionNetCore21.Models.Web.Inspections
+namespace DigitalInspectionNetCore21.Models.Web.Checklists
 {
 	/// <summary>
 	/// A measurement to quantify the condition of an inspection item
 	/// </summary>
-	public class MeasurementResponse
+	public class Measurement
 	{
 		public Guid Id { get; set; }
 

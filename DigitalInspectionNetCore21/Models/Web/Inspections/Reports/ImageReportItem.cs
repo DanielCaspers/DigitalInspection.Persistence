@@ -1,4 +1,6 @@
-﻿namespace DigitalInspectionNetCore21.Models.Inspections.Reports
+﻿using DigitalInspectionNetCore21.Models.Inspections;
+
+namespace DigitalInspectionNetCore21.Models.Web.Inspections.Reports
 {
 	public class ImageReportItem
 	{
@@ -14,8 +16,8 @@
 
 		public ImageReportItem(
 			string baseUrl,
-			InspectionItem ii,
-			InspectionImage image)
+			Models.Inspections.InspectionItem ii,
+			Models.Inspections.InspectionImage image)
 		{
 			title = ii.ChecklistItem.Name;
 			altText = ii.ChecklistItem.Name;

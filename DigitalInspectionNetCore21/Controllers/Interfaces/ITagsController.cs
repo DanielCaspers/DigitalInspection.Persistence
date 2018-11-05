@@ -1,13 +1,15 @@
-﻿using DigitalInspectionNetCore21.Models.Web.Inspections;
-using DigitalInspectionNetCore21.ViewModels.Tags;
+﻿using DigitalInspectionNetCore21.Controllers.Interfaces.RepositoryActions;
+using DigitalInspectionNetCore21.Models.Web;
+using DigitalInspectionNetCore21.Models.Web.Checklists;
+using DigitalInspectionNetCore21.Models.Web.Checklists.Requests;
 
 namespace DigitalInspectionNetCore21.Controllers.Interfaces
 {
 	internal interface ITagsController: 
-		IGetAll<TagResponse>,
-		IGetById<TagResponse>,
-		ICreate<AddTagViewModel, TagResponse>,
-		IUpdate<AddTagViewModel>,
+		IGetAll<Tag>,
+		IGetById<Tag>,
+		ICreate<AddTagRequest, Tag>,
+		IUpdate<AddTagRequest>,
 		IDelete
 	{
 	}

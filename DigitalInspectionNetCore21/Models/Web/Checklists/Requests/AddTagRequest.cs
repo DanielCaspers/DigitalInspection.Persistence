@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace DigitalInspectionNetCore21.ViewModels.Tags
+namespace DigitalInspectionNetCore21.Models.Web.Checklists.Requests
 {
-	public class AddTagViewModel
+	public class AddTagRequest
 	{
 		[Required(ErrorMessage = "Tag name is required")]
 		[DisplayName("Tag name *")]

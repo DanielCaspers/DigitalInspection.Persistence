@@ -4,14 +4,14 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using DigitalInspectionNetCore21.Models.Web.Inspections;
 
-namespace DigitalInspectionNetCore21.ViewModels.ChecklistItems
+namespace DigitalInspectionNetCore21.Models.Web.Checklists.Requests
 {
-	public class EditChecklistItemViewModel
+	public class EditChecklistItemRequest
 	{
-		public ChecklistItemResponse ChecklistItem { get; set; }
+		public ChecklistItem ChecklistItem { get; set; }
 
 		[DisplayName("Tags *")]
-		public IList<TagResponse> Tags { get; set; }
+		public IList<Tag> Tags { get; set; }
 
 		[Required(ErrorMessage = "One or more tags are required")]
 		public IEnumerable<Guid> SelectedTagIds { get; set; }

@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace DigitalInspectionNetCore21.ViewModels.Checklists
+namespace DigitalInspectionNetCore21.Models.Web.Checklists.Requests
 {
-	public class AddChecklistViewModel
+	public class AddChecklistRequest
 	{
 		[Required(ErrorMessage = "Checklist name is required")]
 		[DisplayName("Checklist name *")]

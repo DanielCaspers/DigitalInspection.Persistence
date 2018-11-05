@@ -5,7 +5,7 @@ namespace DigitalInspectionNetCore21.Models.Web.Inspections
 	/// <summary>
 	/// An image belonging to an inspection item performed on a vehicle. 
 	/// </summary>
-	public class InspectionImageResponse
+	public class InspectionImage
 	{
 		public Guid Id { get; set; }
 
