@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using AutoMapper;
+using DigitalInspectionNetCore21.Controllers.Interfaces;
 using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Models.Web;
 using DigitalInspectionNetCore21.Models.Web.Inspections;
@@ -14,10 +15,8 @@ namespace DigitalInspectionNetCore21.Controllers
 {
 	[Route("[controller]/{id}")]
 	// [AuthorizeRoles(Roles.Admin, Roles.User, Roles.LocationManager, Roles.ServiceAdvisor, Roles.Technician)]
-	public class InspectionItemsController : BaseController
+	public class InspectionItemsController : BaseController, IInspectionItemsController
 	{
-		private static readonly string IMAGE_DIRECTORY = "Inspections";
-
 		public InspectionItemsController(ApplicationDbContext db) : base(db)
 		{
 		}
@@ -33,7 +32,14 @@ namespace DigitalInspectionNetCore21.Controllers
 		[ProducesResponseType(404)]
 		public ActionResult<InspectionItem> GetById(Guid id)
 		{
-			var inspectionItem = _context.InspectionItems.SingleOrDefault(ii => ii.Id == id);
+			var inspectionItem = _context.InspectionItems
+				.Include(ii => ii.ChecklistItem)
+				.Include(ii => ii.Inspection)
+				.Include(ii => ii.InspectionMeasurements)
+				// TODO DJC Missing mapping for selectedCannedResponseIds and cannedResponseIds. Needs add'l automapper code
+				.Include(ii => ii.InspectionItemCannedResponses)
+				.Include(ii => ii.InspectionImages)
+				.SingleOrDefault(ii => ii.Id == id);
 
 			if (inspectionItem == null)
 			{
@@ -67,7 +73,7 @@ namespace DigitalInspectionNetCore21.Controllers
 				return NotFound();
 			}
 
-			return InspectionService.UpdateInspectionItemCondition(_context, inspectionItemInDb, (Models.Inspections.InspectionItemCondition) condition.Value) ?
+			return InspectionService.UpdateInspectionItemCondition(_context, inspectionItemInDb, TypeSafeEnum.FromValue<Models.Inspections.InspectionItemCondition>((int) condition)) ?
 				NoContent() : 
 				StatusCode(500);
 		}

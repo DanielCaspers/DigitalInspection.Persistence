@@ -5,8 +5,6 @@ using System.Linq;
 using DigitalInspectionNetCore21.Models.DbContexts;
 using DigitalInspectionNetCore21.Models.Inspections;
 using DigitalInspectionNetCore21.Models.Inspections.Joins;
-using DigitalInspectionNetCore21.Models.Web;
-using DigitalInspectionNetCore21.Models.Web.Inspections;
 using DigitalInspectionNetCore21.Models.Web.Inspections.Reports;
 using DigitalInspectionNetCore21.Models.Web.Inspections.Requests;
 using Microsoft.AspNetCore.Mvc;
@@ -93,7 +91,7 @@ namespace DigitalInspectionNetCore21.Services.Core
 							.Select(t => t.Name)
 							.First()
 					)
-					.OrderBy(ig => ig.OrderBy(ii => ii.Condition).First().Condition)
+					.OrderBy(ig => ig.OrderBy(ii => ii.Condition.Value).First().Condition)
 					.Select(ig => new InspectionReportGroup(ig, imageBaseUrl))
 					.ToList();
 
@@ -102,7 +100,7 @@ namespace DigitalInspectionNetCore21.Services.Core
 			else
 			{
 				var inspectionReportItems = inspectionItems
-					.OrderBy(ii => ii.Condition)
+					.OrderBy(ii => ii.Condition.Value)
 					.Select(ii => new InspectionReportItem(ii, imageBaseUrl))
 					.ToList();
 
@@ -247,6 +245,7 @@ namespace DigitalInspectionNetCore21.Services.Core
 				.Include(i => i.InspectionItems)
 					.ThenInclude(ii => ii.ChecklistItem)
 					.ThenInclude(ii => ii.ChecklistItemTags)
+						.ThenInclude(cit => cit.Tag)
 				.Include(i => i.InspectionItems)
 					.ThenInclude(ii => ii.InspectionMeasurements)
 					.ThenInclude(im => im.Measurement)

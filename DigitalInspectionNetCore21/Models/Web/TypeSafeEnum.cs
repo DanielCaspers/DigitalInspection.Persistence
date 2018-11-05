@@ -13,7 +13,7 @@ namespace DigitalInspectionNetCore21.Models.Web
 		private readonly int _value;
 		private readonly string _displayName;
 
-		protected TypeSafeEnum()
+		public TypeSafeEnum()
 		{
 		}
 
@@ -83,17 +83,17 @@ namespace DigitalInspectionNetCore21.Models.Web
 
 		public static T FromValue<T>(int value) where T : TypeSafeEnum, new()
 		{
-			var matchingItem = parse<T, int>(value, "value", item => item.Value == value);
+			var matchingItem = Parse<T, int>(value, "value", item => item.Value == value);
 			return matchingItem;
 		}
 
 		public static T FromDisplayName<T>(string displayName) where T : TypeSafeEnum, new()
 		{
-			var matchingItem = parse<T, string>(displayName, "display name", item => item.DisplayName == displayName);
+			var matchingItem = Parse<T, string>(displayName, "display name", item => item.DisplayName == displayName);
 			return matchingItem;
 		}
 
-		private static T parse<T, K>(K value, string description, Func<T, bool> predicate) where T : TypeSafeEnum, new()
+		private static T Parse<T, K>(K value, string description, Func<T, bool> predicate) where T : TypeSafeEnum, new()
 		{
 			var matchingItem = GetAll<T>().FirstOrDefault(predicate);
 

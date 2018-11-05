@@ -26,7 +26,7 @@ namespace DigitalInspectionNetCore21.Models.Web.Inspections.Reports
 		public InspectionReportItem(Models.Inspections.InspectionItem ii, string baseUrl)
 		{
 			InspectionItemId = ii.Id;
-			Condition = TypeSafeEnum.FromValue<Condition>((int) ii.Condition);
+			Condition = (Condition) ii.Condition.Value; 
 			Note = ii.Note;
 			Name = ii.ChecklistItem.Name;
 			IsCustomerConcern = ii.IsCustomerConcern;

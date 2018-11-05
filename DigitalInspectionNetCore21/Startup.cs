@@ -15,6 +15,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using Swashbuckle.AspNetCore.Swagger;
 using Checklist = DigitalInspectionNetCore21.Models.Web.Checklists.Checklist;
@@ -54,8 +56,12 @@ namespace DigitalInspectionNetCore21
 			services.AddMvc()
 	            .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
 		        .AddJsonOptions(
-		            options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-		        );
+		            options =>
+		            {
+						options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+			            options.SerializerSettings.Formatting = Formatting.Indented;
+			            options.SerializerSettings.Converters.Add(new StringEnumConverter());
+		            });
 
 			RegisterDependencies(services);
 
@@ -137,6 +143,7 @@ namespace DigitalInspectionNetCore21
 
 			    //... and tell Swagger to use those XML comments.
 			    c.IncludeXmlComments(xmlPath);
+				c.DescribeAllEnumsAsStrings();
 			});
 		}
 

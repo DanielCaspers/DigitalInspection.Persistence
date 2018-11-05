@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DigitalInspectionNetCore21.Models.Inspections;
 using DigitalInspectionNetCore21.Models.Inspections.Joins;
+using DigitalInspectionNetCore21.Models.Web;
 using Microsoft.EntityFrameworkCore;
 
 namespace DigitalInspectionNetCore21.Models.DbContexts
@@ -219,7 +220,11 @@ namespace DigitalInspectionNetCore21.Models.DbContexts
 		    modelBuilder
 			    .Entity<InspectionItem>()
 			    .Property(ii => ii.Condition)
-			    .HasConversion<int>();
+			    .HasConversion(
+				    // Going into the DB
+				    v => v.Value,
+				    // Coming out of the DB
+				    v => TypeSafeEnum.FromValue<InspectionItemCondition>(v));
 
 		    modelBuilder
 			    .Entity<CannedResponse>()
@@ -233,7 +238,7 @@ namespace DigitalInspectionNetCore21.Models.DbContexts
 
 		private string ConvertToString(IList<InspectionItemCondition> levelsOfConcern)
 	    {
-		    return string.Join(",", levelsOfConcern);
+		    return string.Join(",", levelsOfConcern.Select(tsEnum => tsEnum.Value));
 		}
 
 	    private IList<InspectionItemCondition> ConvertToInspectionItemConditions(string levelsOfConcernInDb)
@@ -246,7 +251,7 @@ namespace DigitalInspectionNetCore21.Models.DbContexts
 			{
 				IList<string> stringList = levelsOfConcernInDb.Split(',').ToList();
 				return stringList
-					.Select(s => (InspectionItemCondition)Enum.Parse(typeof(InspectionItemCondition), s))
+					.Select(s => TypeSafeEnum.FromValue<InspectionItemCondition>(int.Parse(s)))
 					.ToList();
 			}
 		}

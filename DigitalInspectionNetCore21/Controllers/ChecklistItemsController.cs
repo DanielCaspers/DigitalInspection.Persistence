@@ -9,6 +9,7 @@ using DigitalInspectionNetCore21.Services.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DigitalInspectionNetCore21.Controllers.Interfaces;
+using DigitalInspectionNetCore21.Models.Web;
 using DigitalInspectionNetCore21.Models.Web.Checklists;
 using DigitalInspectionNetCore21.Models.Web.Checklists.Requests;
 using Measurement = DigitalInspectionNetCore21.Models.Web.Checklists.Measurement;
@@ -199,7 +200,7 @@ namespace DigitalInspectionNetCore21.Controllers
 				if (cannedResponseInDb != null)
 				{
 					cannedResponseInDb.Response = cannedResponseInVm.Response;
-					cannedResponseInDb.LevelsOfConcern =  (IList<InspectionItemCondition>) cannedResponseInVm.LevelsOfConcern.Select(condition => (InspectionItemCondition)condition.Value);
+					cannedResponseInDb.LevelsOfConcern =  (IList<InspectionItemCondition>) cannedResponseInVm.LevelsOfConcern.Select(condition => TypeSafeEnum.FromValue<InspectionItemCondition>((int) condition));
 					cannedResponseInDb.Url = cannedResponseInVm.Url;
 					cannedResponseInDb.Description = cannedResponseInVm.Description;
 				}

@@ -10,8 +10,6 @@ namespace DigitalInspectionNetCore21.Controllers
 	[Route("[controller]")]
 	public class InspectionsController : BaseController
 	{
-		private static readonly string IMAGE_DIRECTORY = "Inspections";
-
 		public InspectionsController(ApplicationDbContext db) : base(db)
 		{
 		}
